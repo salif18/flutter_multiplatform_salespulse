@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:salespulse/providers/auth_provider.dart';
 import 'package:salespulse/services/stats_api.dart';
@@ -87,7 +88,7 @@ class _RapportGeneralScreenState extends State<RapportGeneralScreen> {
 
       if (res.statusCode == 200) {
         final data = res.data;
-        if (!mounted) return;
+        if (!context.mounted) return;
         
         setState(() {
           totalVentes = data['totalVentesBrutes'] ?? 0;
@@ -133,7 +134,7 @@ class _RapportGeneralScreenState extends State<RapportGeneralScreen> {
         final mergedJour = _mergeChartData(resJour.data, 'totalParHeure', 'quantiteParHeure');
         final mergedAnnee = _mergeChartData(resAnnee.data, 'totalParMois', 'quantiteParMois');
         
-        if (!mounted) return;
+        if (!context.mounted) return;
         setState(() {
           ventesDuJour = mergedJour;
           ventesAnnee = mergedAnnee;
@@ -172,7 +173,7 @@ class _RapportGeneralScreenState extends State<RapportGeneralScreen> {
   }
 
   void _handleApiError(DioException e) {
-    if (!mounted) return;
+    if (!context.mounted) return;
     
      if (e.response != null && e.response?.statusCode == 403) {
         final errorMessage = e.response?.data['error'] ?? '';
@@ -208,7 +209,7 @@ class _RapportGeneralScreenState extends State<RapportGeneralScreen> {
   }
 
   void _showError(String message) {
-    if (!mounted) return;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message, style: GoogleFonts.poppins(fontSize: 14))),
     );
@@ -240,8 +241,10 @@ class _RapportGeneralScreenState extends State<RapportGeneralScreen> {
           ),
         ],
       ),
-      body: isLoading 
-          ? const Center(child: CircularProgressIndicator())
+      body: isLoading
+            ? Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.orange, size: 50))
           : RefreshIndicator(
               onRefresh: _loadData,
               child: LayoutBuilder(

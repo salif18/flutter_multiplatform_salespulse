@@ -123,7 +123,7 @@ class _RoutesState extends State<Routes> {
     final ScrollController scrollController = ScrollController();
 
     return Container(
-      width: 250,
+      width: 220,
       decoration: const BoxDecoration(
           gradient: LinearGradient(
         colors: [Color(0xFF001C30), Color(0xFF001C40)],
@@ -550,7 +550,7 @@ class _RoutesState extends State<Routes> {
         ),
       ),
       trailing: Icon(
-        expanded ? Icons.expand_less : Icons.expand_more,
+        expanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
         color: Colors.grey[400],
       ),
       onTap: onTap,

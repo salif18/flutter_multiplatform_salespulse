@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:salespulse/models/depenses_model.dart';
 import 'package:salespulse/providers/auth_provider.dart';
@@ -25,6 +26,7 @@ class _DepenseScreenState extends State<DepenseScreen> {
   final TextEditingController _motifController = TextEditingController();
   final TextEditingController _montantController = TextEditingController();
   String _selectedType = "transport";
+  bool loading = true;
 
   final List<Map<String, dynamic>> _typeOptions = [
     {"label": "Transport", "value": "transport", "icon": Icons.directions_car},
@@ -52,6 +54,7 @@ class _DepenseScreenState extends State<DepenseScreen> {
         final List data = res.data["depenses"];
         setState(() {
           _depenses = data.map((e) => DepensesModel.fromJson(e)).toList();
+          loading = false;
           _applyFilters();
         });
       }
@@ -396,7 +399,13 @@ class _DepenseScreenState extends State<DepenseScreen> {
           ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: _filtered.isEmpty
+        child:loading
+            ? Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.orange, size: 50))
+            :
+        
+         _filtered.isEmpty
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

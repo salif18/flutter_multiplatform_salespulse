@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:salespulse/models/user_model.dart';
 import 'package:salespulse/providers/auth_provider.dart';
@@ -26,6 +27,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   List<UserModel> _filteredUsers = [];
   String _searchQuery = '';
   String? _selectedRoleFilter;
+  bool loading = true;
 
   final List<Map<String, dynamic>> _roles = [
     {'value': 'admin', 'label': 'Administrateur', 'color': Colors.redAccent},
@@ -52,6 +54,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           _users = (res.data["data"] as List)
               .map((e) => UserModel.fromJon(e))
               .toList();
+              loading = false;
           _applyFilters();
         });
       }
@@ -235,8 +238,27 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ],
           ),
           Expanded(
-            child: _filteredUsers.isEmpty
-                ? const Center(child: Text('Aucun utilisateur trouvé'))
+            child:
+            loading
+            ? Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.orange, size: 50))
+            :
+             _filteredUsers.isEmpty
+                ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/not_data.png",
+                      width: 200, height: 200, fit: BoxFit.cover),
+                  const SizedBox(height: 20),
+                  Text("Aucun utilisateur.",
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                      )),
+                ],
+              ),
+            )
                 : ListView.builder(
                     padding: const EdgeInsets.only(top: 8),
                     itemCount: _filteredUsers.length,

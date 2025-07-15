@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:salespulse/providers/auth_provider.dart';
@@ -23,6 +24,7 @@ class StatistiquesScreen extends StatefulWidget {
 class _StatistiquesScreenState extends State<StatistiquesScreen> {
   final ServicesStats api = ServicesStats();
   final FormatPrice _formatPrice = FormatPrice();
+bool loading = true;
 
   int totalVentes = 0;
   int montantEncaisse = 0;
@@ -101,6 +103,8 @@ class _StatistiquesScreenState extends State<StatistiquesScreen> {
           margeMoyennePromo = (data['margeMoyennePromo'] ?? 0).toDouble();
           nbPromoActifs = data['nbPromoActifs'] ?? 0;
           impactPromoVentes = data['impactPromoVentes'] ?? {};
+
+          loading = false;
         });
       }
     } on DioException catch (e) {
@@ -217,6 +221,7 @@ class _StatistiquesScreenState extends State<StatistiquesScreen> {
           ventesDuJour = mergedJour;
           ventesAnnee = mergedAnnee;
           ventesHebdo = List<Map<String, dynamic>>.from(resHebdo.data);
+          loading = false;
         });
       }
     } on DioException catch (e) {
@@ -345,7 +350,12 @@ class _StatistiquesScreenState extends State<StatistiquesScreen> {
                 style: GoogleFonts.poppins(fontSize: 16, color: Colors.white)),
             backgroundColor: Colors.blueGrey,
           ),
-          body: RefreshIndicator(
+          body: loading
+            ? Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.orange, size: 50))
+            :
+           RefreshIndicator(
             onRefresh: _fetchStats,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),

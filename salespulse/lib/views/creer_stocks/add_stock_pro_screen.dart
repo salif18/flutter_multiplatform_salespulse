@@ -675,6 +675,7 @@ class _AddProduitPageState extends State<AddProduitPage> {
             child: Text(
               "ENREGISTRER LE PRODUIT",
               style: GoogleFonts.poppins(
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1089,6 +1090,7 @@ class _AddProduitPageState extends State<AddProduitPage> {
                   child: Text(
                     "ENREGISTRER LE PRODUIT",
                     style: GoogleFonts.poppins(
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

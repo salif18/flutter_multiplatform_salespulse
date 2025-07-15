@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 // import 'package:flutter/material.dart' as pw;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
@@ -255,8 +256,8 @@ class _HistoriqueMouvementsScreenState
               icon: const Icon(Icons.more_vert, color: Colors.white),
               itemBuilder: (context) => [
                 PopupMenuItem(
-                  child: const Text("Réinitialiser"),
                   onTap: _resetFilters,
+                  child: Text("Réinitialiser",style: GoogleFonts.roboto(fontSize: 14),),
                 ),
               ],
             ),
@@ -273,7 +274,9 @@ class _HistoriqueMouvementsScreenState
             // Table & Loading
             Expanded(
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ?  Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.orange, size: 50))
                   : _buildDataTable(isDesktop, isTablet),
             ),
 

@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:salespulse/providers/auth_provider.dart';
 import 'package:salespulse/services/vente_api.dart';
@@ -236,7 +237,10 @@ class _StatistiquesProduitsPageState extends State<StatistiquesProduitsPage> {
 
   Widget _buildAdaptiveBody() {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+     return Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.orange, size: 50));
+            
     }
 
     if (errorMessage.isNotEmpty) {

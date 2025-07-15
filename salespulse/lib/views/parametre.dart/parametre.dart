@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:salespulse/views/auth/update_password.dart';
 import 'package:salespulse/views/profil/logo_entreprise.dart';
@@ -34,6 +35,10 @@ class ParametresPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                 Text(
+                  'Paramètres',
+                  style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
                 Text(
                   'Gérez les données de base et la configuration de votre application',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
@@ -47,7 +52,7 @@ class ParametresPage extends StatelessWidget {
                     crossAxisCount: isWide ? 2 : 1,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
-                    childAspectRatio: isWide ? 3.5 : 1.9,
+                    childAspectRatio: isWide ? 5 : 1.9,
                   ),
                   itemBuilder: (context, index) => _settings(context)[index],
                 ),
@@ -71,7 +76,7 @@ class ParametresPage extends StatelessWidget {
       _buildSettingCard(
         context,
         icon: Iconsax.setting,
-        title: 'Securisation de compte',
+        title: 'Sécurisation de compte',
         description: 'Vous pouvez modifier le mot de passe  ',
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UpdatePassword())),
       ),
@@ -93,7 +98,7 @@ class ParametresPage extends StatelessWidget {
         context,
         icon: Iconsax.message,
         title: 'Message',
-        description: 'Personnalisez le message de facture',
+        description: 'Personnalisez le slogan de votre facture',
         onTap: () => _navigateTo(context, '/entrepots'),
       ),
       _buildSettingCard(
