@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, deprecated_member_use
 
 import 'dart:async';
 
@@ -122,9 +122,22 @@ class _AbonnementHistoriquePageState extends State<AbonnementHistoriquePage> {
       );
     }
     final token = Provider.of<AuthProvider>(context, listen: false).token;
-    return Scaffold(
+
+    
+    return   WillPopScope(
+      onWillPop: () async {
+        // Cette partie garantit un retour propre
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: Scaffold(
       appBar: AppBar(
-         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, 
+            size: 20, 
+            color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(
           "Historique des abonnements",
           style: GoogleFonts.roboto(
@@ -194,6 +207,7 @@ class _AbonnementHistoriquePageState extends State<AbonnementHistoriquePage> {
               fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
+    )
     );
   }
 }

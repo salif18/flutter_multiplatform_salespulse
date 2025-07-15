@@ -823,12 +823,14 @@ class _StocksViewState extends State<StocksView> {
                         ),
                         DataCell(
                           Text(
-                            article.statut.toString(),
+                            article.stocks > 0 ? 
+                            article.statut.toString() : "Rupture",
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: article.statut == "disponible" 
+                              color: (article.statut == "disponible" && article.stocks > 0)
                                   ? Colors.green 
-                                  : Colors.red,
+                                  : Colors.red ,
+
                             ),
                           ),
                         ),

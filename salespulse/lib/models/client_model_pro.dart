@@ -3,6 +3,7 @@ class ClientModel {
   final String userId;
   final String nom;
   final String contact;
+  final String? clientAdresse;
   final String image;
   final int creditTotal;
   final int montantPaye;
@@ -17,6 +18,7 @@ class ClientModel {
     required this.userId,
     required this.nom,
     required this.contact,
+    required this.clientAdresse,
     required this.image,
     required this.creditTotal,
     required this.montantPaye,
@@ -33,6 +35,7 @@ class ClientModel {
       userId:json["userId"],
       nom: json['nom'],
       contact: json['contact'],
+       clientAdresse:json['client_address'] ?? "",
       image: json["image"] ?? "",
       creditTotal: json['credit_total'],
       montantPaye: json['montant_paye'],
@@ -49,6 +52,7 @@ class ClientModel {
         "userId":userId,
         'nom': nom,
         'contact': contact,
+        'client_address':clientAdresse,
         'image':image,
         'credit_total': creditTotal,
         'montant_paye': montantPaye,

@@ -9,7 +9,6 @@ import 'package:salespulse/components/add_photo.dart';
 import 'package:salespulse/providers/auth_provider.dart';
 import 'package:salespulse/views/abonnement/abonement_historiques.dart';
 import 'package:salespulse/views/auth/login_view.dart';
-import 'package:salespulse/views/auth/update_password.dart';
 import 'package:salespulse/views/categories/categories_view.dart';
 import 'package:salespulse/views/cliens/client_pro.dart';
 import 'package:salespulse/views/dashbord/dash_prod.dart';
@@ -19,8 +18,8 @@ import 'package:salespulse/views/impaye/impaye_pro.dart';
 import 'package:salespulse/views/inventaire/inventaire.dart';
 import 'package:salespulse/views/mouvements/mouvement_inventaire.dart';
 import 'package:salespulse/views/panier/add_vente_pro.dart';
+import 'package:salespulse/views/parametre.dart/parametre.dart';
 import 'package:salespulse/views/populaires/populaire_view.dart';
-import 'package:salespulse/views/profil/update_profil.dart';
 import 'package:salespulse/views/rapports/rapport_general.dart';
 import 'package:salespulse/views/reglements/reglement_view.dart';
 import 'package:salespulse/views/creer_stocks/add_stock_pro_screen.dart';
@@ -36,10 +35,16 @@ class Routes extends StatefulWidget {
 }
 
 class _RoutesState extends State<Routes> {
-
-   int _currentIndex = 0;
+  int _currentIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? currentBackPressTime;
+  bool _analyseMenuExpanded = false;
+  bool _ventesMenuExpanded = false;
+  bool _stockMenuExpanded = false;
+  bool _catalogueMenuExpanded = false;
+  bool _relationsMenuExpanded = false;
+  bool _financesMenuExpanded = false;
+  bool _adminMenuExpanded = false;
 
   Future<bool> _onWillPop() async {
     final now = DateTime.now();
@@ -111,11 +116,9 @@ class _RoutesState extends State<Routes> {
         : const LoginView();
   }
 
-
   Widget _buildDesktopSidebar() {
     final store = Provider.of<AuthProvider>(context, listen: false).societeName;
-    final number =
-        Provider.of<AuthProvider>(context, listen: false).societeNumber;
+    final number = Provider.of<AuthProvider>(context, listen: false).societeNumber;
     final role = Provider.of<AuthProvider>(context, listen: false).role;
     final ScrollController scrollController = ScrollController();
 
@@ -144,13 +147,10 @@ class _RoutesState extends State<Routes> {
           child: ListView(
             controller: scrollController,
             children: [
-              // En-tête du magasin
               DrawerHeader(
                 decoration: const BoxDecoration(
                   color: Color(0xff001c30),
-                  border: Border(
-                      bottom: BorderSide(width: 2, color: Colors.orange)),
-                ),
+                  border: Border(bottom: BorderSide(width: 2, color: Colors.orange))),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -178,73 +178,150 @@ class _RoutesState extends State<Routes> {
                 ),
               ),
 
-              // Section ANALYSE
-              _buildSectionHeader('ANALYSE'),
-              if (role == "admin")
-                _buildDrawerItem(
-                    Icons.stacked_bar_chart_rounded, "Tableau de bord", 0,
+              _buildExpandableSectionHeader(
+                'ANALYSE',
+                 Icons.analytics,
+                expanded: _analyseMenuExpanded,
+                onTap: () => setState(() => _analyseMenuExpanded = !_analyseMenuExpanded),
+              ),
+              if (_analyseMenuExpanded) ...[
+                if (role == "admin")
+                  _buildDrawerItem(
+                      Icons.stacked_bar_chart_rounded, "Tableau de bord", 0,
+                      iconBgColor: Colors.blueGrey),
+                 if (role == "admin")
+                  _buildDrawerItem(Icons.stacked_line_chart_outlined, "Rapports généraux", 1,
+                      iconBgColor: Colors.green),
+                  _buildDrawerItem(
+                    Icons.workspace_premium, "Tendance des produits", 2,
                     iconBgColor: Colors.orange),
-              _buildDrawerItem(
-                  Icons.workspace_premium, "Tendance des produits", 1,
-                  iconBgColor: Colors.pink),
+              ],
 
-              // Section VENTES
-              _buildSectionHeader('VENTES'),
-              _buildDrawerItem(
-                  Icons.shopping_cart_outlined, "Point de vente", 2,
-                  iconBgColor: Colors.teal),
-              _buildDrawerItem(
-                  Icons.library_books_sharp, "Historique de ventes", 3,
-                  iconBgColor: Colors.cyan),
-              _buildDrawerItem(Icons.credit_card_off, "Clients impayés", 4,
-                  iconBgColor: Colors.orangeAccent),
-              _buildDrawerItem(
-                  FontAwesomeIcons.handshake, "Historique règlements", 5,
-                  iconBgColor: Colors.deepOrange),
-
-              // Section STOCKS
-              _buildSectionHeader('STOCKS'),
-              _buildDrawerItem(Icons.assured_workload_rounded, "Entrepots", 6,
-                  iconBgColor: Colors.blue),
-              if (role == "admin")
-                _buildDrawerItem(Icons.add, "Ajouter produits", 7,
-                    iconBgColor: Colors.blue.shade300),
-              _buildDrawerItem(Icons.inventory_2_rounded, "Inventaires", 8,
-                  iconBgColor: Colors.deepPurple),
-              _buildDrawerItem(Icons.assignment_add, "Mouvement inventaires", 9,
-                  iconBgColor: Colors.deepOrange),
-              if (role == "admin")
-              _buildDrawerItem(Icons.stacked_line_chart_outlined, "Rapports générales", 10,
-                  iconBgColor: Colors.pink),
-              // Section CATALOGUE
-              _buildSectionHeader('CATALOGUE'),
-              _buildDrawerItem(Icons.category, "Catégories", 11,
-                  iconBgColor: Colors.green),
-
-              // Section RELATIONS
-              _buildSectionHeader('RELATIONS'),
-              _buildDrawerItem(Icons.people_alt, "Mes clients", 12,
-                  iconBgColor: Colors.teal),
-              _buildDrawerItem(Icons.contact_phone_rounded, "Fournisseurs", 13,
-                  iconBgColor: Colors.grey),
-
-              // Section FINANCES
-              _buildSectionHeader('FINANCES'),
-              _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
-                  iconBgColor: Colors.redAccent),
-
-              // Section ADMINISTRATION
-              _buildSectionHeader('ADMINISTRATION'),
-              if (role == "admin")
+              _buildExpandableSectionHeader(
+                'VENTES',
+                   Icons.shopping_cart,
+              
+                expanded: _ventesMenuExpanded,
+                onTap: () => setState(() => _ventesMenuExpanded = !_ventesMenuExpanded),
+              ),
+              if (_ventesMenuExpanded) ...[
                 _buildDrawerItem(
-                    FontAwesomeIcons.userGroup, "Suivis employés", 15,
-                    iconBgColor: Colors.blueAccent),
-              if (role == "admin")
-                _buildDrawerItem(Icons.receipt_long, "Abonnements", 16,
+                    Icons.shopping_cart_outlined, "Point de vente", 3,
+                    iconBgColor: Colors.teal),
+                _buildDrawerItem(
+                    Icons.library_books_sharp, "Historique de ventes", 4,
+                    iconBgColor: Colors.cyan),
+                _buildDrawerItem(Icons.credit_card_off, "Clients impayés", 5,
+                    iconBgColor: Colors.orangeAccent),
+                _buildDrawerItem(
+                    FontAwesomeIcons.handshake, "Historique règlements", 6,
                     iconBgColor: Colors.deepOrange),
+              ],
 
-              // Section COMPTE UTILISATEUR
-              _buildUserActionsSection(),
+              _buildExpandableSectionHeader(
+                'STOCKS',
+                  Icons.inventory,
+                expanded: _stockMenuExpanded,
+                onTap: () => setState(() => _stockMenuExpanded = !_stockMenuExpanded),
+              ),
+              if (_stockMenuExpanded) ...[
+                _buildDrawerItem(Icons.assured_workload_rounded, "Entrepots", 7,
+                    iconBgColor: Colors.blue),
+                if (role == "admin")
+                  _buildDrawerItem(Icons.add, "Ajouter produits", 8,
+                      iconBgColor: Colors.blue.shade300),
+                _buildDrawerItem(Icons.inventory_2_rounded, "Inventaires", 9,
+                    iconBgColor: Colors.deepPurple),
+                _buildDrawerItem(Icons.assignment_add, "Mouvement inventaires", 10,
+                    iconBgColor: Colors.deepOrange),
+               
+              ],
+
+              _buildExpandableSectionHeader(
+                'CATALOGUE',
+                 Icons.category,
+                expanded: _catalogueMenuExpanded,
+                onTap: () => setState(() => _catalogueMenuExpanded = !_catalogueMenuExpanded),
+              ),
+              if (_catalogueMenuExpanded) ...[
+                _buildDrawerItem(Icons.category, "Catégories", 11,
+                    iconBgColor: Colors.green),
+              ],
+
+              _buildExpandableSectionHeader(
+                'RELATIONS',
+                Icons.people,
+                expanded: _relationsMenuExpanded,
+                onTap: () => setState(() => _relationsMenuExpanded = !_relationsMenuExpanded),
+              ),
+              if (_relationsMenuExpanded) ...[
+                _buildDrawerItem(Icons.people_alt, "Mes clients", 12,
+                    iconBgColor: Colors.teal),
+                _buildDrawerItem(Icons.contact_phone_rounded, "Fournisseurs", 13,
+                    iconBgColor: Colors.grey),
+              ],
+
+              _buildExpandableSectionHeader(
+                'FINANCES',
+                  Icons.attach_money,
+                expanded: _financesMenuExpanded,
+                onTap: () => setState(() => _financesMenuExpanded = !_financesMenuExpanded),
+              ),
+              if (_financesMenuExpanded) ...[
+                _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
+                    iconBgColor: Colors.redAccent),
+              ],
+
+              _buildExpandableSectionHeader(
+                'ADMINISTRATION',
+                 Icons.admin_panel_settings,
+                expanded: _adminMenuExpanded,
+                onTap: () => setState(() => _adminMenuExpanded = !_adminMenuExpanded),
+              ),
+              if (_adminMenuExpanded) ...[
+                if (role == "admin")
+                  _buildDrawerItem(
+                      FontAwesomeIcons.userGroup, "Suivis employés", 15,
+                      iconBgColor: Colors.blueAccent),
+              ],
+
+              const Divider(color: Colors.grey),
+              _customSidebarAction(
+                  icon: Icons.settings,
+                  label: "Paramètres",
+                  color: const Color.fromARGB(255, 10, 165, 226),
+                  onTap: () {
+                    // Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ParametresPage()),
+                    );
+                  }),
+             
+              Consumer<AuthProvider>(
+                builder: (context, provider, child) => _customSidebarAction(
+                  icon: LineIcons.alternateSignOut,
+                  label: "Se déconnecter",
+                  color: const Color.fromARGB(255, 165, 10, 226),
+                  onTap: () {
+                    // Navigator.pop(context);
+                    provider.logoutButton();
+                  },
+                ),
+              ),
+               if (role == "admin")
+            _customSidebarAction(
+              icon: Icons.receipt_long, 
+              label: "Abonnement", 
+              color: Colors.deepOrange, 
+              onTap:  () {
+                  // Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AbonnementHistoriquePage()),
+                  );
+                }
+              )
             ],
           ),
         ),
@@ -254,8 +331,7 @@ class _RoutesState extends State<Routes> {
 
   Widget _buildMobileDrawer() {
     final store = Provider.of<AuthProvider>(context, listen: false).societeName;
-    final number =
-        Provider.of<AuthProvider>(context, listen: false).societeNumber;
+    final number = Provider.of<AuthProvider>(context, listen: false).societeNumber;
     final role = Provider.of<AuthProvider>(context, listen: false).role;
 
     return Drawer(
@@ -269,12 +345,10 @@ class _RoutesState extends State<Routes> {
           )),
         child: ListView(
           children: [
-            // En-tête du magasin
             DrawerHeader(
               decoration: const BoxDecoration(
                 color: Color(0xff001c30),
-                border: Border(
-                    bottom: BorderSide(width: 2, color: Colors.orange)),
+                border: Border(bottom: BorderSide(width: 2, color: Colors.orange)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -303,83 +377,167 @@ class _RoutesState extends State<Routes> {
               ),
             ),
 
-            // Section ANALYSE
-            _buildSectionHeader('ANALYSE'),
-            if (role == "admin")
+            _buildExpandableSectionHeader(
+              'ANALYSE',
+              Icons.analytics,
+              expanded: _analyseMenuExpanded,
+              onTap: () => setState(() => _analyseMenuExpanded = !_analyseMenuExpanded),
+            ),
+            if (_analyseMenuExpanded) ...[
+              if (role == "admin")
+                _buildDrawerItem(
+                    Icons.stacked_bar_chart_rounded, "Tableau de bord", 0,
+                    iconBgColor: Colors.orange),
               _buildDrawerItem(
-                  Icons.stacked_bar_chart_rounded, "Tableau de bord", 0,
-                  iconBgColor: Colors.orange),
-            _buildDrawerItem(
-                Icons.workspace_premium, "Tendance des produits", 1,
-                iconBgColor: Colors.pink),
+                  Icons.workspace_premium, "Tendance des produits", 1,
+                  iconBgColor: Colors.pink),
+                if (role == "admin")
+                _buildDrawerItem(Icons.stacked_line_chart_outlined, "Rapports généraux", 2,
+                    iconBgColor: Colors.pink),
+            ],
 
-            // Section VENTES
-            _buildSectionHeader('VENTES'),
-            _buildDrawerItem(
-                Icons.shopping_cart_outlined, "Point de vente", 2,
-                iconBgColor: Colors.teal),
-            _buildDrawerItem(
-                Icons.library_books_sharp, "Historique de ventes", 3,
-                iconBgColor: Colors.cyan),
-            _buildDrawerItem(Icons.credit_card_off, "Clients impayés", 4,
-                iconBgColor: Colors.orangeAccent),
-            _buildDrawerItem(
-                FontAwesomeIcons.handshake, "Historique règlements", 5,
-                iconBgColor: Colors.deepOrange),
-
-            // Section STOCKS
-            _buildSectionHeader('STOCKS'),
-            _buildDrawerItem(Icons.assured_workload_rounded, "Entrepots", 6,
-                iconBgColor: Colors.blue),
-            if (role == "admin")
-              _buildDrawerItem(Icons.add, "Ajouter produits", 7,
-                  iconBgColor: Colors.blue.shade300),
-            _buildDrawerItem(Icons.inventory_2_rounded, "Inventaires", 8,
-                iconBgColor: Colors.deepPurple),
-            _buildDrawerItem(Icons.assignment_add, "Mouvement inventaires", 9,
-                iconBgColor: Colors.deepOrange),
-                 if (role == "admin")
-            _buildDrawerItem(Icons.stacked_line_chart_outlined, "Rapports générales", 10,
-                iconBgColor: Colors.deepOrange),
-            // Section CATALOGUE
-            _buildSectionHeader('CATALOGUE'),
-            _buildDrawerItem(Icons.category, "Catégories", 11,
-                iconBgColor: Colors.green),
-
-            // Section RELATIONS
-            _buildSectionHeader('RELATIONS'),
-            _buildDrawerItem(Icons.people_alt, "Mes clients", 12,
-                iconBgColor: Colors.teal),
-            _buildDrawerItem(Icons.contact_phone_rounded, "Fournisseurs", 13,
-                iconBgColor: Colors.grey),
-
-            // Section FINANCES
-            _buildSectionHeader('FINANCES'),
-            _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
-                iconBgColor: Colors.redAccent),
-
-            // Section ADMINISTRATION
-            _buildSectionHeader('ADMINISTRATION'),
-            if (role == "admin")
+            _buildExpandableSectionHeader(
+              'VENTES',
+                Icons.shopping_cart,
+              expanded: _ventesMenuExpanded,
+              onTap: () => setState(() => _ventesMenuExpanded = !_ventesMenuExpanded),
+            ),
+            if (_ventesMenuExpanded) ...[
               _buildDrawerItem(
-                  FontAwesomeIcons.userGroup, "Suivis employés", 15,
-                  iconBgColor: Colors.blueAccent),
-            if (role == "admin")
-              _buildDrawerItem(Icons.receipt_long, "Abonnements", 16,
+                  Icons.shopping_cart_outlined, "Point de vente", 3,
+                  iconBgColor: Colors.teal),
+              _buildDrawerItem(
+                  Icons.library_books_sharp, "Historique de ventes", 4,
+                  iconBgColor: Colors.cyan),
+              _buildDrawerItem(Icons.credit_card_off, "Clients impayés", 5,
+                  iconBgColor: Colors.orangeAccent),
+              _buildDrawerItem(
+                  FontAwesomeIcons.handshake, "Historique règlements", 6,
                   iconBgColor: Colors.deepOrange),
+            ],
 
-            // Section COMPTE UTILISATEUR
-            _buildUserActionsSection(),
+            _buildExpandableSectionHeader(
+              'STOCKS',
+              Icons.inventory,
+              expanded: _stockMenuExpanded,
+              onTap: () => setState(() => _stockMenuExpanded = !_stockMenuExpanded),
+            ),
+            if (_stockMenuExpanded) ...[
+              _buildDrawerItem(Icons.assured_workload_rounded, "Entrepots", 7,
+                  iconBgColor: Colors.blue),
+              if (role == "admin")
+                _buildDrawerItem(Icons.add, "Ajouter produits", 8,
+                    iconBgColor: Colors.blue.shade300),
+              _buildDrawerItem(Icons.inventory_2_rounded, "Inventaires", 9,
+                  iconBgColor: Colors.deepPurple),
+              _buildDrawerItem(Icons.assignment_add, "Mouvement inventaires", 10,
+                  iconBgColor: Colors.deepOrange),
+            
+            ],
+
+            _buildExpandableSectionHeader(
+              'CATALOGUE',
+               Icons.category,
+              expanded: _catalogueMenuExpanded,
+              onTap: () => setState(() => _catalogueMenuExpanded = !_catalogueMenuExpanded),
+            ),
+            if (_catalogueMenuExpanded) ...[
+              _buildDrawerItem(Icons.category, "Catégories", 11,
+                  iconBgColor: Colors.green),
+            ],
+
+            _buildExpandableSectionHeader(
+              'RELATIONS',
+               Icons.people,
+              expanded: _relationsMenuExpanded,
+              onTap: () => setState(() => _relationsMenuExpanded = !_relationsMenuExpanded),
+            ),
+            if (_relationsMenuExpanded) ...[
+              _buildDrawerItem(Icons.people_alt, "Mes clients", 12,
+                  iconBgColor: Colors.teal),
+              _buildDrawerItem(Icons.contact_phone_rounded, "Fournisseurs", 13,
+                  iconBgColor: Colors.grey),
+            ],
+
+            _buildExpandableSectionHeader(
+              'FINANCES',
+               Icons.attach_money,
+              expanded: _financesMenuExpanded,
+              onTap: () => setState(() => _financesMenuExpanded = !_financesMenuExpanded),
+            ),
+            if (_financesMenuExpanded) ...[
+              _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
+                  iconBgColor: Colors.redAccent),
+            ],
+
+            _buildExpandableSectionHeader(
+              'ADMINISTRATION',
+               Icons.admin_panel_settings,
+              expanded: _adminMenuExpanded,
+              onTap: () => setState(() => _adminMenuExpanded = !_adminMenuExpanded),
+            ),
+            if (_adminMenuExpanded) ...[
+              if (role == "admin")
+                _buildDrawerItem(
+                    FontAwesomeIcons.userGroup, "Suivis employés", 15,
+                    iconBgColor: Colors.blueAccent),
+            
+            ],
+
+            const Divider(color: Colors.grey),
+            _customSidebarAction(
+                icon: Icons.settings,
+                label: "Paramètres",
+                color: const Color.fromARGB(255, 10, 165, 226),
+                onTap: () {
+                  // Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ParametresPage()),
+                  );
+                }),
+            Consumer<AuthProvider>(
+              builder: (context, provider, child) => _customSidebarAction(
+                icon: LineIcons.alternateSignOut,
+                label: "Se déconnecter",
+                color: const Color.fromARGB(255, 165, 10, 226),
+                onTap: () {
+                  // Navigator.pop(context);
+                  provider.logoutButton();
+                },
+              ),
+            ),
+              if (role == "admin")
+            _customSidebarAction(
+              icon: Icons.receipt_long, 
+              label: "Abonnement", 
+              color: Colors.deepOrange, 
+              onTap:  () {
+                  // Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AbonnementHistoriquePage()),
+                  );
+                }
+              )
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15, left: 10, bottom: 5),
-      child: Text(
+  Widget _buildExpandableSectionHeader(String title,IconData icon, {
+    required bool expanded,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.only(left: 10, right: 10),
+       leading: Icon(
+        icon,
+        size: 20,
+        color: Colors.grey[400],
+      ),
+      title: Text(
         title,
         style: TextStyle(
           color: Colors.grey[400],
@@ -388,57 +546,11 @@ class _RoutesState extends State<Routes> {
           fontWeight: FontWeight.bold,
         ),
       ),
-    );
-  }
-
-  Widget _buildUserActionsSection() {
-    return Column(
-      children: [
-        const Divider(color: Colors.grey),
-        _customSidebarAction(
-            icon: LineIcons.userEdit,
-            label: "Modifier profil",
-            color: const Color.fromARGB(255, 10, 165, 226),
-            onTap: () {
-              Navigator.pop(context); // Fermer le drawer
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const UpdateProfil()),
-              );
-            }),
-        _customSidebarAction(
-            icon: LineIcons.edit,
-            label: "Modifier password",
-            color: const Color.fromARGB(255, 7, 185, 75),
-            onTap: () {
-              Navigator.pop(context); // Fermer le drawer
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const UpdatePassword()),
-              );
-            }),
-        _customSidebarAction(
-          icon: LineIcons.removeUser,
-          label: "Supprimer compte",
-          color: const Color.fromARGB(255, 255, 180, 17),
-          onTap: () {
-            Navigator.pop(context); // Fermer le drawer
-            _confirmAccountDeletion();
-          },
-        ),
-        Consumer<AuthProvider>(
-          builder: (context, provider, child) => _customSidebarAction(
-            icon: LineIcons.alternateSignOut,
-            label: "Se déconnecter",
-            color: const Color.fromARGB(255, 165, 10, 226),
-            onTap: () {
-              Navigator.pop(context); // Fermer le drawer
-              provider.logoutButton();
-            },
-          ),
-        ),
-      ],
+      trailing: Icon(
+        expanded ? Icons.expand_less : Icons.expand_more,
+        color: Colors.grey[400],
+      ),
+      onTap: onTap,
     );
   }
 
@@ -446,50 +558,32 @@ class _RoutesState extends State<Routes> {
     final auth = Provider.of<AuthProvider>(context);
     final role = auth.role;
 
-    // Liste complète de toutes les pages avec des index fixes
     final allPages = [
-      // 0. Dashboard (admin uniquement)
-      const StatistiquesScreen(),
-
-      // 1. Tendance des produits
+      const StatistiquesScreen(), 
+      const RapportGeneralScreen(), 
       const StatistiquesProduitsPage(),
-
-      // 2-5. VENTES
       const AddVenteScreen(),
       const HistoriqueVentesScreen(),
       const ClientsEnRetardScreen(),
       const HistoriqueReglementsScreen(),
-
-      // 6-10. STOCKS
       const StocksView(),
       const AddProduitPage(),
       const InventaireProPage(),
       const HistoriqueMouvementsScreen(),
-      const RapportGeneralScreen(),
-      // 11. CATALOGUE
       const CategoriesView(),
-
-      // 11-12. RELATIONS
       const ClientsView(),
       const FournisseurView(),
-
-      // 13. FINANCES
       const DepenseScreen(),
-
-      // 14. ADMINISTRATION (admin uniquement)
       const UserManagementScreen(),
-      const AbonnementHistoriquePage()
+      // const AbonnementHistoriquePage()
     ];
 
-    // Liste des index autorisés selon le rôle
     final allowedIndexes = [
-      1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, // Pour tous les utilisateurs
-      if (role == "admin") ...[0, 7,10,14, 15] // Pages supplémentaires pour admin
+      1, 3, 4, 5, 6, 8, 9,10, 11, 12, 13,
+      if (role == "admin") ...[0, 7, 2, 14, 15]
     ];
 
-    // Vérification si l'index actuel est autorisé
     if (!allowedIndexes.contains(_currentIndex)) {
-      // Redirection vers le premier index autorisé
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _currentIndex = allowedIndexes.first;
@@ -541,7 +635,6 @@ class _RoutesState extends State<Routes> {
       selectedTileColor: Colors.white24,
       onTap: () {
         setState(() => _currentIndex = index);
-        // Fermer le drawer sur mobile après sélection
         if (MediaQuery.of(context).size.width < 768) {
           Navigator.pop(context);
         }
@@ -574,26 +667,5 @@ class _RoutesState extends State<Routes> {
     );
   }
 
-  void _confirmAccountDeletion() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirmer la suppression"),
-        content: const Text(
-            "Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Annuler"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text("Supprimer", style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
+  
 }

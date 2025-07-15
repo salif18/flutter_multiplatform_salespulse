@@ -1062,142 +1062,409 @@ Widget _buildCell(String text, {bool bold = false}) {
     return null;
   }
 
-  Future<void> generateFacturePdf(VenteModel vente) async {
-    final pdf = pw.Document();
-    final dateFormatter = DateFormat('dd/MM/yyyy HH:mm');
 
-    ProfilModel? profil;
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
+Future<void> generateFacturePdf(VenteModel vente) async {
+  final pdf = pw.Document();
+  final dateFormatter = DateFormat('dd/MM/yyyy HH:mm');
+  final currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA');
 
-    try {
-      final res = await ServicesProfil().getProfils(token);
-      if (res.statusCode == 200) {
-        profil = ProfilModel.fromJson(res.data["profils"]);
-      }
-    } catch (e) {
-      debugPrint("Erreur chargement profil: $e");
+  // Chargement des données du profil
+  final token = Provider.of<AuthProvider>(context, listen: false).token;
+  ProfilModel? profil;
+  try {
+    final res = await ServicesProfil().getProfils(token);
+    if (res.statusCode == 200) {
+      profil = ProfilModel.fromJson(res.data["profils"]);
     }
+  } catch (e) {
+    debugPrint("Erreur chargement profil: $e");
+  }
 
-    final pw.MemoryImage? logoNetwork =
-        await tryLoadNetworkImage(profil?.image ?? "");
+  // Chargement du logo
+  final pw.MemoryImage? logoNetwork = await tryLoadNetworkImage(profil?.image ?? "");
+  final pw.ImageProvider logoLocal = pw.MemoryImage(
+    (await rootBundle.load('assets/logos/LOGO CGTECH.JPG')).buffer.asUint8List(),
+  );
 
-    final pw.ImageProvider logoLocal = pw.MemoryImage(
-      (await rootBundle.load('assets/logos/LOGO CGTECH.JPG'))
-          .buffer
-          .asUint8List(),
-    );
+  // Calcul des montants de base
+  final double totalHT = vente.produits.fold(0, (sum, p) => sum + (p.prixUnitaire * p.quantite));
+  
+  // Gestion de la TVA
+  double totalTVA;
+  bool isTvaGlobale = vente.tvaGlobale != null && vente.tvaGlobale! > 0;
+  
+  if (isTvaGlobale) {
+    totalTVA = (totalHT * vente.tvaGlobale!) / 100;
+  } else {
+    totalTVA = vente.produits.fold(0, (sum, p) {
+      final tvaProduit = p.tva ?? 0;
+      return sum + ((p.prixUnitaire * p.quantite * tvaProduit) / 100);
+    });
+  }
 
-    final int reste = (vente.total - vente.montantRecu) > 0
-        ? (vente.total - vente.montantRecu)
-        : 0;
+  // Calcul du TTC de base
+  double totalTTC = totalHT + totalTVA;
 
-    pdf.addPage(
-      pw.Page(
-        margin: const pw.EdgeInsets.all(24),
-        build: (context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Image(logoNetwork ?? logoLocal, width: 100, height: 100),
-              pw.SizedBox(height: 10),
-              pw.Text("FACTURE",
-                  style: pw.TextStyle(
-                      fontSize: 24, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 10),
-              pw.Text("Facture N°: ${vente.id.toString().substring(0, 4)}",
-                  style: const pw.TextStyle(fontSize: 12)),
-              pw.Text("Date : ${dateFormatter.format(vente.date)}",
-                  style: const pw.TextStyle(fontSize: 12)),
-              pw.SizedBox(height: 10),
-              pw.Text("Client : ${vente.clientNom ?? 'Occasionnel'}",
-                  style: const pw.TextStyle(fontSize: 12)),
-              pw.SizedBox(height: 16),
+  // Application des frais supplémentaires
+  totalTTC += (vente.livraison ?? 0) + (vente.emballage ?? 0);
 
-              // Détail produits
-              pw.Text("Détail des produits :",
-                  style: pw.TextStyle(
-                      fontSize: 14, fontWeight: pw.FontWeight.bold)),
-              pw.SizedBox(height: 8),
-              ...vente.produits.map((p) {
-                return pw.Container(
-                  margin: const pw.EdgeInsets.only(bottom: 8),
-                  padding: const pw.EdgeInsets.all(8),
-                  decoration: pw.BoxDecoration(
-                    border: pw.Border.all(color: PdfColors.grey300),
-                    borderRadius: pw.BorderRadius.circular(4),
-                  ),
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text("${p.nom} x${p.quantite}",
-                          style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold, fontSize: 12)),
-                      pw.Text("PU : ${p.prixUnitaire} Fcfa"),
-                      if ((p.remise ?? 0) > 0)
-                        pw.Text(
-                            "Remise : ${p.remise} ${p.remiseType == 'pourcent' ? '%' : 'Fcfa'}"),
-                      if ((p.tva ?? 0) > 0) pw.Text("TVA : ${p.tva}%"),
-                      pw.Text("Sous-total : ${p.sousTotal} Fcfa",
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ],
-                  ),
-                );
-              }),
+  // Application de la remise globale
+  if (vente.remiseGlobale != null && vente.remiseGlobale! > 0) {
+    if (vente.remiseGlobaleType == 'pourcent') {
+      totalTTC -= (totalTTC * vente.remiseGlobale!) / 100;
+    } else {
+      totalTTC -= vente.remiseGlobale!;
+    }
+  }
 
-              pw.Divider(),
-              pw.SizedBox(height: 8),
+  // Calcul du reste à payer
+  final int reste = (vente.total - vente.montantRecu) > 0 ? (vente.total - vente.montantRecu) : 0;
 
-              // Récapitulatif
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.end,
+  pdf.addPage(
+    pw.Page(
+      margin: const pw.EdgeInsets.all(24),
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            // En-tête
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Image(logoNetwork ?? logoLocal, width: 100, height: 100),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text("FACTURE", 
+                        style: pw.TextStyle(
+                            fontSize: 24, 
+                            fontWeight: pw.FontWeight.bold)),
+                    pw.Text("N°: ${vente.facturNumber}",
+                        style: const pw.TextStyle(fontSize: 12)),
+                    pw.Text("Date: ${dateFormatter.format(vente.date)}",
+                        style: const pw.TextStyle(fontSize: 12)),
+                  ],
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 20),
+
+            // Informations client
+            pw.Container(
+              padding: const pw.EdgeInsets.all(10),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.grey300),
+                borderRadius: pw.BorderRadius.circular(5),
+              ),
+              child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      if ((vente.remiseGlobale ?? 0) > 0)
-                        pw.Text(
-                            "Remise globale : ${vente.remiseGlobale} ${vente.remiseGlobaleType == 'pourcent' ? '%' : 'Fcfa'}",
-                            style: const pw.TextStyle(fontSize: 12)),
-                      if ((vente.tvaGlobale ?? 0) > 0)
-                        pw.Text("TVA globale : ${vente.tvaGlobale}%",
-                            style: const pw.TextStyle(fontSize: 12)),
-                      if ((vente.livraison ?? 0) > 0)
-                        pw.Text("Livraison : ${vente.livraison} Fcfa",
-                            style: const pw.TextStyle(fontSize: 12)),
-                      if ((vente.emballage ?? 0) > 0)
-                        pw.Text("Emballage : ${vente.emballage} Fcfa",
-                            style: const pw.TextStyle(fontSize: 12)),
-                      pw.SizedBox(height: 4),
-                      pw.Text("Total : ${vente.total} Fcfa",
-                          style: pw.TextStyle(
-                              fontSize: 14,
-                              fontWeight: pw.FontWeight.bold,
-                              color: PdfColors.blue800)),
-                      pw.Text("Reçu : ${vente.montantRecu} Fcfa"),
-                      pw.Text("Monnaie : ${vente.monnaie} Fcfa"),
-                      if (reste > 0)
-                        pw.Text("Reste : $reste Fcfa",
-                            style: pw.TextStyle(
-                                fontWeight: pw.FontWeight.bold,
-                                color: PdfColors.red)),
-                    ],
-                  )
+                  pw.Text("CLIENT", 
+                      style: pw.TextStyle(
+                          fontSize: 14, 
+                          fontWeight: pw.FontWeight.bold)),
+                  pw.SizedBox(height: 5),
+                  pw.Text("Nom: ${vente.clientNom ?? '-'}"),
+                  if (vente.contactClient != null) 
+                    pw.Text("Contact: ${vente.contactClient}"),
+                  if (vente.clientAdresse != null)
+                    pw.Text("Adresse: ${vente.clientAdresse}"),
                 ],
               ),
-              pw.SizedBox(height: 16),
-              pw.Text("Mode de paiement : ${vente.typePaiement}",
-                  style: const pw.TextStyle(fontSize: 12)),
-              pw.Text("Statut : ${vente.statut}",
-                  style: const pw.TextStyle(fontSize: 12)),
-            ],
-          );
-        },
-      ),
-    );
+            ),
+            pw.SizedBox(height: 20),
 
-    await Printing.layoutPdf(onLayout: (format) => pdf.save());
-  }
+            // Tableau des produits
+            pw.Text("DÉTAIL DES ARTICLES",
+                style: pw.TextStyle(
+                    fontSize: 14, 
+                    fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 10),
+            pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.grey300),
+              columnWidths: {
+                0: const pw.FlexColumnWidth(3),
+                1: const pw.FlexColumnWidth(1),
+                2: const pw.FlexColumnWidth(1.5),
+                3: const pw.FlexColumnWidth(1.5),
+                4: const pw.FlexColumnWidth(1.5),
+              },
+              children: [
+                pw.TableRow(
+                  decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text("Désignation",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text("Qté",
+                          textAlign: pw.TextAlign.center,
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text("P.U",
+                          textAlign: pw.TextAlign.right,
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                    // pw.Padding(
+                    //   padding: const pw.EdgeInsets.all(5),
+                    //   child: pw.Text(isTvaGlobale ? "Mode TVA" : "TVA",
+                    //       textAlign: pw.TextAlign.right,
+                    //       style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    // ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(5),
+                      child: pw.Text("Montant HT",
+                          textAlign: pw.TextAlign.right,
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                ...vente.produits.map((p) {
+                  final prixHT = p.prixUnitaire;
+                  final totalHT = prixHT * p.quantite;
+                  
+                  return pw.TableRow(
+                    children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(p.nom),
+                            if ((p.remise ?? 0) > 0)
+                              pw.Text(
+                                "Remise: ${p.remise} ${p.remiseType == 'pourcent' ? '%' : 'FCFA'}",
+                                style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+                              ),
+                          ],
+                        ),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text(p.quantite.toString(),
+                            textAlign: pw.TextAlign.center),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text(currencyFormat.format(prixHT),
+                            textAlign: pw.TextAlign.right),
+                      ),
+                      // pw.Padding(
+                      //   padding: const pw.EdgeInsets.all(5),
+                      //   child: pw.Text(
+                      //     isTvaGlobale ? "Globale" : (p.tva ?? 0) > 0 ? "${p.tva}%" : "-",
+                      //     textAlign: pw.TextAlign.right),
+                      // ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text(currencyFormat.format(totalHT),
+                            textAlign: pw.TextAlign.right),
+                      ),
+                    ],
+                  );
+                })
+              ],
+            ),
+            pw.SizedBox(height: 20),
+
+            // Section Totaux
+            pw.Container(
+              alignment: pw.Alignment.centerRight,
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  // Total HT
+                  pw.Row(
+                    mainAxisSize: pw.MainAxisSize.min,
+                    children: [
+                      pw.Text("Total HT: ", 
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      pw.Text(currencyFormat.format(totalHT)),
+                    ],
+                  ),
+                  
+                  // TVA
+                  if (isTvaGlobale) ...[
+                    pw.SizedBox(height: 5),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("TVA : ", 
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.Text(currencyFormat.format(totalTVA)),
+                      ],
+                    ),
+                  ] else if (totalTVA > 0) ...[
+                    pw.SizedBox(height: 5),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("Total TVA: ", 
+                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.Text(currencyFormat.format(totalTVA)),
+                      ],
+                    ),
+                  ],
+                  
+                  // Total TTC avant frais et remises
+                  pw.SizedBox(height: 5),
+                  pw.Row(
+                    mainAxisSize: pw.MainAxisSize.min,
+                    children: [
+                      pw.Text("Total TTC: ", 
+                          style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 14)),
+                      pw.Text(currencyFormat.format(totalHT + totalTVA),
+                          style: const pw.TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  
+                  // Frais de livraison
+                  if ((vente.livraison ?? 0) > 0) ...[
+                    pw.SizedBox(height: 5),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("Livraison: "),
+                        pw.Text(currencyFormat.format(vente.livraison)),
+                      ],
+                    ),
+                  ],
+                  
+                  // Frais d'emballage
+                  if ((vente.emballage ?? 0) > 0) ...[
+                    pw.SizedBox(height: 5),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("Emballage: "),
+                        pw.Text(currencyFormat.format(vente.emballage)),
+                      ],
+                    ),
+                  ],
+                  
+                  // Remise globale
+                  if (vente.remiseGlobale != null && vente.remiseGlobale! > 0) ...[
+                    pw.SizedBox(height: 5),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("- Remise Globale: "),
+                        pw.Text(
+                          "${vente.remiseGlobale} ${vente.remiseGlobaleType == 'pourcent' ? '%' : 'FCFA'}",
+                          style: const pw.TextStyle(color: PdfColors.green)),
+                      ],
+                    ),
+                  ],
+                  
+                  // Total Net à Payer
+                  pw.SizedBox(height: 10),
+                  pw.Container(
+                    padding: const pw.EdgeInsets.all(10),
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border.all(color: PdfColors.blue700),
+                      borderRadius: pw.BorderRadius.circular(5),
+                    ),
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.end,
+                      children: [
+                        pw.Row(
+                          mainAxisSize: pw.MainAxisSize.min,
+                          children: [
+                            pw.Text("NET À PAYER: ", 
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold,
+                                    fontSize: 16)),
+                            pw.Text(currencyFormat.format(vente.total),
+                                style: const pw.TextStyle(
+                                    fontSize: 16,
+                                    color: PdfColors.blue700)),
+                          ],
+                        ),
+                        
+                        // Détails de paiement
+                        pw.SizedBox(height: 8),
+                        pw.Row(
+                          mainAxisSize: pw.MainAxisSize.min,
+                          children: [
+                            pw.Text("Montant Reçu: ",
+                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            pw.Text(currencyFormat.format(vente.montantRecu)),
+                          ],
+                        ),
+                        
+                        if (vente.monnaie > 0) pw.SizedBox(height: 4),
+                        if (vente.monnaie > 0) pw.Row(
+                          mainAxisSize: pw.MainAxisSize.min,
+                          children: [
+                            pw.Text("Monnaie Rendue: ",
+                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            pw.Text(currencyFormat.format(vente.monnaie)),
+                          ],
+                        ),
+                        
+                        if (reste > 0) pw.SizedBox(height: 4),
+                        if (reste > 0) pw.Row(
+                          mainAxisSize: pw.MainAxisSize.min,
+                          children: [
+                            pw.Text("Reste à Payer: ",
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold,
+                                    color: PdfColors.red)),
+                            pw.Text(currencyFormat.format(reste),
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold,
+                                    color: PdfColors.red)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Pied de page
+            pw.SizedBox(height: 20),
+            pw.Divider(),
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text("Mode de Paiement: ${vente.typePaiement}"),
+                pw.Text("Statut: ${vente.statut}"),
+              ],
+            ),
+            pw.SizedBox(height: 10),
+            pw.Text("Merci pour votre confiance !",
+                style: pw.TextStyle(
+                    fontStyle: pw.FontStyle.italic,
+                    fontSize: 12)),
+            // if (profil?.nomEntreprise != null) ...[
+            //   pw.SizedBox(height: 5),
+            //   pw.Text(profil!.nomEntreprise!,
+            //       style: pw.TextStyle(
+            //           fontWeight: pw.FontWeight.bold,
+            //           fontSize: 12)),
+            // ],
+            // if (profil?.contactEntreprise != null)
+            //   pw.Text("Contact: ${profil!.contactEntreprise}",
+            //       style: const pw.TextStyle(fontSize: 12)),
+          ],
+        );
+      },
+    ),
+  );
+
+  await Printing.layoutPdf(onLayout: (PdfPageFormat format) => pdf.save());
+}
+
 
   Future<void> _generateRapportPdfPro(
       List<VenteModel> ventes, DateTime? dateDebut, DateTime? dateFin) async {

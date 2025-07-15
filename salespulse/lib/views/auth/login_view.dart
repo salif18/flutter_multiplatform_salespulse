@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:salespulse/models/profil_model.dart';
 import 'package:salespulse/providers/auth_provider.dart';
 import 'package:salespulse/routes.dart';
 import 'package:salespulse/services/auth_api.dart';
+import 'package:salespulse/services/profil_api.dart';
 import 'package:salespulse/utils/app_size.dart';
 import 'package:salespulse/views/auth/registre_view.dart';
 import 'package:salespulse/views/auth/reset_password.dart';
@@ -21,6 +23,8 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final ServicesProfil api = ServicesProfil();
+  ProfilModel? profil;
   final ServicesAuth _authService = ServicesAuth();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -50,9 +54,9 @@ class _LoginViewState extends State<LoginView> {
 
       final response = await _authService.postLoginUser(data);
       final body = jsonDecode(response.body);
-      print(body);
 
       if (response.statusCode == 200) {
+        
         final provider = Provider.of<AuthProvider>(context, listen: false);
         provider.loginButton(
           body['token'], 
@@ -63,7 +67,7 @@ class _LoginViewState extends State<LoginView> {
           body["userNumber"],
           body["entreprise"],     
         );
-        
+        await _loadProfil();
         if (mounted) {
           Navigator.pushReplacement(
             context, 
@@ -83,6 +87,24 @@ class _LoginViewState extends State<LoginView> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _loadProfil() async {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      final res = await api.getProfils(token);
+      if (res.statusCode == 200) {
+        if (!mounted) return;
+        setState(() {
+          profil = ProfilModel.fromJson(res.data["profils"]);
+        });
+          provider.saveProfilData(profil);
+         print(profil);
+      }
+    } catch (e) {
+      debugPrint("Erreur chargement profil: $e");
     }
   }
 
