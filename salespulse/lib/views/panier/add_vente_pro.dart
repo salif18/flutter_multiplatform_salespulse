@@ -225,26 +225,26 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     setState(() {
       panier.add(item);
       // total = panier.fold(0, (sum, p) => sum + p.sousTotal);
-       total = _estimerTotalPanier(); // visuel seulement
+      total = _estimerTotalPanier(); // visuel seulement
     });
   }
 
   int _estimerTotalPanier() {
-  return panier.fold(0, (sum, p) {
-    int prix = p.prixUnitaire;
-    if (p.remiseType == 'fcfa') {
-      prix -= p.remise!;
-    } else if (p.remiseType == 'pourcent') {
-      prix -= (prix * p.remise! ~/ 100);
-    }
-    if (prix < 0) prix = 0;
+    return panier.fold(0, (sum, p) {
+      int prix = p.prixUnitaire;
+      if (p.remiseType == 'fcfa') {
+        prix -= p.remise!;
+      } else if (p.remiseType == 'pourcent') {
+        prix -= (prix * p.remise! ~/ 100);
+      }
+      if (prix < 0) prix = 0;
 
-    int brut = prix * p.quantite;
-    double tva = (p.tva! > 0) ? (brut * p.tva! / 100) : 0;
+      int brut = prix * p.quantite;
+      double tva = (p.tva! > 0) ? (brut * p.tva! / 100) : 0;
 
-    return sum + (brut + tva + p.fraisLivraison! + p.fraisEmballage!).round();
-  });
-}
+      return sum + (brut + tva + p.fraisLivraison! + p.fraisEmballage!).round();
+    });
+  }
 
   Future<void> _validerVente() async {
     if (panier.isEmpty) {
@@ -275,9 +275,12 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: Text("Stock insuffisant", style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+            title: Text("Stock insuffisant",
+                style: GoogleFonts.poppins(
+                    fontSize: 16, fontWeight: FontWeight.bold)),
             content: Text("Le stock de ${item.nom} est insuffisant.",
-             style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+                style: GoogleFonts.poppins(
+                    fontSize: 14, fontWeight: FontWeight.w500)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -294,16 +297,19 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
 
   bool _validateClientForCreditSales() {
     int montantRecu = int.tryParse(_montantRecuController.text) ?? 0;
-    final totalAmount = total ;
+    final totalAmount = total;
 
     if (montantRecu < totalAmount && selectedClient == null) {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text("Client requis",   style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+          title: Text("Client requis",
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.bold)),
           content: Text(
               "Pour une vente à crédit ou un paiement partiel, vous devez sélectionner un client.",
-                 style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -332,16 +338,18 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
       statut = "crédit";
     }
 
-     // Validation du mode de paiement
-  String paymentMode = selectedPaiement;
-  if (paymentMode.isEmpty) {
-    showDialog(
+    // Validation du mode de paiement
+    String paymentMode = selectedPaiement;
+    if (paymentMode.isEmpty) {
+      showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text("Avertissement", style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Text(
-              "Veuillez sélectionner un mode de paiement", 
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+          title: Text("Avertissement",
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.bold)),
+          content: Text("Veuillez sélectionner un mode de paiement",
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -351,19 +359,22 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
         ),
       );
       return null;
-    // throw ArgumentError("Veuillez sélectionner un mode de paiement");
-  }
+      // throw ArgumentError("Veuillez sélectionner un mode de paiement");
+    }
 
-  // Cohérence mode paiement/montant
-  if ((paymentMode == "cash" || paymentMode == "mobile_money") && montantRecu < total ) {
-     showDialog(
+    // Cohérence mode paiement/montant
+    if ((paymentMode == "cash" || paymentMode == "mobile_money") &&
+        montantRecu < total) {
+      showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text("Avertissement", style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+          title: Text("Avertissement",
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.bold)),
           content: Text(
-              "Le paiement $paymentMode nécessite un montant reçu supérieur ou égale au total ", 
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)
-              ),
+              "Le paiement $paymentMode nécessite un montant reçu supérieur ou égale au total ",
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -372,58 +383,66 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
           ],
         ),
       );
-        return null ;
-    // throw ArgumentError("Le paiement $paymentMode nécessite un montant reçu > 0");
-  }
+      return null;
+      // throw ArgumentError("Le paiement $paymentMode nécessite un montant reçu > 0");
+    }
 
-  if (paymentMode == "crédit" && montantRecu > 0) {
-    showDialog(
+    if (paymentMode == "crédit" && montantRecu > 0) {
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                title: Text("Avertissement",
+                    style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                content: Text(
+                    "Le mode crédit ne peut pas avoir de montant reçu",
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, fontWeight: FontWeight.w500)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("OK"),
+                  )
+                ],
+              ));
+      return null;
+      // throw ArgumentError("Le mode crédit ne peut pas avoir de montant reçu");
+    }
+
+    if (paymentMode == "partiel" && montantRecu <= 0) {
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                title: Text("Avertissement",
+                    style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                content: Text(
+                    "Le mode partiel doit avoir au moins quelque montant reçu",
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, fontWeight: FontWeight.w500)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("OK"),
+                  )
+                ],
+              ));
+      return null;
+      // throw ArgumentError("Le mode crédit ne peut pas avoir de montant reçu");
+    }
+
+    // Validation client pour crédit/partiel
+    String clientName = selectedClient?.nom ?? nomController.text;
+    if ((statut == "crédit" || statut == "partiel") && clientName.isEmpty) {
+      showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text("Avertissement",   style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Text(
-           "Le mode crédit ne peut pas avoir de montant reçu",
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
-            )
-          ],
-        ));
-          return null ;
-    // throw ArgumentError("Le mode crédit ne peut pas avoir de montant reçu");
-  }
-
-  if (paymentMode == "partiel" && montantRecu <= 0) {
-    showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text("Avertissement",   style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Text(
-           "Le mode partiel doit avoir au moins quelque montant reçu",
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
-            )
-          ],
-        ));
-          return null ;
-    // throw ArgumentError("Le mode crédit ne peut pas avoir de montant reçu");
-  }
-
-  // Validation client pour crédit/partiel
-  String clientName = selectedClient?.nom ?? nomController.text;
-  if ((statut == "crédit" || statut == "partiel") && clientName.isEmpty) {
-     showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text("Avertissement",   style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Text(
-              "Nom client requis pour les ventes en crédit/partiel",
-                 style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+          title: Text("Avertissement",
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.bold)),
+          content: Text("Nom client requis pour les ventes en crédit/partiel",
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -432,20 +451,24 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
           ],
         ),
       );
-      return null ;
-    // throw ArgumentError("Nom client requis pour les ventes en crédit/partiel");
-  }
+      return null;
+      // throw ArgumentError("Nom client requis pour les ventes en crédit/partiel");
+    }
 
     String clientContact = selectedClient?.contact ?? contactController.text;
-    String clientAddress = selectedClient?.clientAdresse ?? adresseController.text;
+    String clientAddress =
+        selectedClient?.clientAdresse ?? adresseController.text;
 
     if ((montantRecu < total) && clientName.isEmpty) {
-       showDialog(
+      showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text("Avertissement",   style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
-          content: Text(
-              "Nom client requis pour crédit/partiel",   style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+          title: Text("Avertissement",
+              style: GoogleFonts.poppins(
+                  fontSize: 16, fontWeight: FontWeight.bold)),
+          content: Text("Nom client requis pour crédit/partiel",
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -454,8 +477,8 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
           ],
         ),
       );
-        return null ;
-        // throw Exception("Nom client requis pour crédit/partiel");
+      return null;
+      // throw Exception("Nom client requis pour crédit/partiel");
     }
     return {
       "userId": authProvider.userId,
@@ -831,7 +854,6 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
                                 ]
                               ],
                             ),
-                            
                           ],
                         ),
                       ),
@@ -910,7 +932,6 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
                             ]
                           ],
                         ),
-                 
                       ],
                     ),
                   ),
@@ -941,7 +962,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     if (change < 0 && item.quantite == 1) {
       setState(() {
         panier.removeAt(index);
-         total = _estimerTotalPanier();
+        total = _estimerTotalPanier();
       });
       return;
     }
@@ -953,7 +974,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
 
     setState(() {
       item.quantite += change;
-       total = _estimerTotalPanier();
+      total = _estimerTotalPanier();
     });
   }
 
@@ -996,75 +1017,82 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
             ),
           ),
         ),
-          const SizedBox(height: 16),
-         if(selectedClient == null)
-  Column(
-    children: [
-      GestureDetector(
-        onTap: () => setState(() => isActive = !isActive),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
+        const SizedBox(height: 16),
+        if (selectedClient == null)
+          Column(
             children: [
-              Icon(isActive ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, 
-                  color: Colors.blue),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text("Ajouter un client manuellement",
-                    style: GoogleFonts.roboto(fontSize: 14)),
+              GestureDetector(
+                onTap: () => setState(() => isActive = !isActive),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                          isActive
+                              ? Icons.keyboard_arrow_up
+                              : Icons.keyboard_arrow_down,
+                          color: Colors.blue),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text("Ajouter un client manuellement",
+                            style: GoogleFonts.roboto(fontSize: 14)),
+                      ),
+                    ],
+                  ),
+                ),
               ),
+              if (isActive)
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  // padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    // color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      TextField(
+                        style: GoogleFonts.roboto(
+                            fontSize: 14, fontWeight: FontWeight.normal),
+                        controller: nomController,
+                        decoration: InputDecoration(
+                          labelText: "Nom complet",
+                          labelStyle: GoogleFonts.roboto(
+                              fontSize: 14, fontWeight: FontWeight.normal),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        style: GoogleFonts.roboto(
+                            fontSize: 14, fontWeight: FontWeight.normal),
+                        controller: contactController,
+                        decoration: InputDecoration(
+                            labelText: "Téléphone ",
+                            labelStyle: GoogleFonts.roboto(
+                                fontSize: 14, fontWeight: FontWeight.normal)),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        style: GoogleFonts.roboto(
+                            fontSize: 14, fontWeight: FontWeight.normal),
+                        controller: adresseController,
+                        decoration: InputDecoration(
+                            labelText: "Adresse",
+                            labelStyle: GoogleFonts.roboto(
+                                fontSize: 14, fontWeight: FontWeight.normal)),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
-        ),
-      ),
-      if(isActive)
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          // padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            // color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            children: [
-              TextField(
-                style: GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.normal),
-                controller: nomController,
-                decoration: InputDecoration(
-                  labelText: "Nom complet",
-                  labelStyle:  GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.normal),
-                
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                style:  GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.normal),
-                controller: contactController,
-                decoration: InputDecoration(
-                  labelText: "Téléphone ",
-                labelStyle:  GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.normal)
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                style:  GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.normal),
-                controller: adresseController,
-                decoration: InputDecoration(
-                  labelText: "Adresse",
-                 labelStyle:  GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.normal)
-                ),
-              ),
-            ],
-          ),
-        ),
-    ],
-  ),
- const SizedBox(height: 16),
+        const SizedBox(height: 16),
         // Mode de paiement
         DropdownButtonFormField<String>(
           value: selectedPaiement,
@@ -1197,35 +1225,37 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
 
   //recalcule pour affichage temporaire de mis a jours de total dans le front
   void recalculerTotal() {
-  int nouveauTotal = _estimerTotalPanier();
+    int nouveauTotal = _estimerTotalPanier();
 
-  // Appliquer remise globale
-  int remise = int.tryParse(_remiseGlobaleController.text) ?? 0;
-  if (_remiseGlobaleType == "pourcent") {
-    nouveauTotal -= ((nouveauTotal * remise) / 100).round();
-  } else {
-    nouveauTotal -= remise;
+    // Appliquer remise globale
+    int remise = int.tryParse(_remiseGlobaleController.text) ?? 0;
+    if (_remiseGlobaleType == "pourcent") {
+      nouveauTotal -= ((nouveauTotal * remise) / 100).round();
+    } else {
+      nouveauTotal -= remise;
+    }
+
+    // Appliquer TVA globale
+    int tva = int.tryParse(_tvaGlobaleController.text) ?? 0;
+    if (tva > 0) {
+      nouveauTotal += ((nouveauTotal * tva) / 100).round();
+    }
+
+    // Ajouter frais fixes
+    int livraison = int.tryParse(_livraisonController.text) ?? 0;
+    int emballage = int.tryParse(_emballageController.text) ?? 0;
+    nouveauTotal += livraison + emballage;
+
+    setState(() {
+      total = nouveauTotal;
+    });
   }
-
-  // Appliquer TVA globale
-  int tva = int.tryParse(_tvaGlobaleController.text) ?? 0;
-  if (tva > 0) {
-    nouveauTotal += ((nouveauTotal * tva) / 100).round();
-  }
-
-  // Ajouter frais fixes
-  int livraison = int.tryParse(_livraisonController.text) ?? 0;
-  int emballage = int.tryParse(_emballageController.text) ?? 0;
-  nouveauTotal += livraison + emballage;
-
-  setState(() {
-    total = nouveauTotal;
-  });
-}
-
 
   void _ouvrirModalSelectionProduit() {
-    List<ProductModel> produitsFiltres = List.from(allProducts);
+    // List<ProductModel> produitsFiltres = List.from(allProducts);
+    List<ProductModel> produitsFiltres =
+        allProducts.where((p) => p.statut != 'expire' && p.stocks > 0).toList();
+
     TextEditingController searchController = TextEditingController();
 
     showModalBottomSheet(
@@ -1272,9 +1302,12 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
                         onChanged: (value) {
                           setModalState(() {
                             produitsFiltres = allProducts
-                                .where((prod) => prod.nom
-                                    .toLowerCase()
-                                    .contains(value.toLowerCase()))
+                                .where((prod) =>
+                                    prod.nom
+                                        .toLowerCase()
+                                        .contains(value.toLowerCase()) &&
+                                    prod.statut != "expiré" &&
+                                    (prod.stocks > 0))
                                 .toList();
                           });
                         },
@@ -1282,80 +1315,100 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
                     ),
 
                     /// Liste des produits
+                    /// Liste des produits
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: produitsFiltres.length,
-                        itemBuilder: (context, index) {
-                          final product = produitsFiltres[index];
-                          final isSelected = selectedProducts.contains(product);
-                          return CheckboxListTile(
-                            value: isSelected,
-                            onChanged: (bool? value) {
-                              setModalState(() {
-                                if (value == true) {
-                                  selectedProducts.add(product);
-                                } else {
-                                  selectedProducts.remove(product);
-                                }
-                              });
-                            },
-                            title: Text(
-                              product.nom,
-                              style: GoogleFonts.roboto(
-                                fontSize: isMobile ? 13 : 14,
-                                fontWeight: FontWeight.normal,
+                      child: produitsFiltres.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.inventory_2_outlined,
+                                      color: Colors.grey, size: 60),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    "Aucun produit disponible pour le moment.",
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 14, color: Colors.black54),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: Row(
-                              children: [
-                                if (product.isPromo) ...[
-                                  Text(
-                                    formatPrice.formatNombre(
-                                        product.prixPromo.toString()),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.redAccent,
-                                      fontSize: isMobile ? 12 : 14,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    formatPrice.formatNombre(
-                                        product.prixVente.toString()),
-                                    style: TextStyle(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: Colors.grey,
-                                      fontSize: isMobile ? 12 : 14,
-                                    ),
-                                  ),
-                                ] else
-                                  Text(
-                                    formatPrice.formatNombre(
-                                        product.prixVente.toString()),
+                            )
+                          : ListView.builder(
+                              itemCount: produitsFiltres.length,
+                              itemBuilder: (context, index) {
+                                final product = produitsFiltres[index];
+                                final isSelected =
+                                    selectedProducts.contains(product);
+                                return CheckboxListTile(
+                                  value: isSelected,
+                                  onChanged: (bool? value) {
+                                    setModalState(() {
+                                      if (value == true) {
+                                        selectedProducts.add(product);
+                                      } else {
+                                        selectedProducts.remove(product);
+                                      }
+                                    });
+                                  },
+                                  title: Text(
+                                    product.nom,
                                     style: GoogleFonts.roboto(
                                       fontSize: isMobile ? 13 : 14,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Row(
+                                    children: [
+                                      if (product.isPromo) ...[
+                                        Text(
+                                          formatPrice.formatNombre(
+                                              product.prixPromo.toString()),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.redAccent,
+                                            fontSize: isMobile ? 12 : 14,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          formatPrice.formatNombre(
+                                              product.prixVente.toString()),
+                                          style: TextStyle(
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                            color: Colors.grey,
+                                            fontSize: isMobile ? 12 : 14,
+                                          ),
+                                        ),
+                                      ] else
+                                        Text(
+                                          formatPrice.formatNombre(
+                                              product.prixVente.toString()),
+                                          style: GoogleFonts.roboto(
+                                            fontSize: isMobile ? 13 : 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  secondary: ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: Image.network(
+                                      product.image ?? '',
+                                      width: isMobile ? 35 : 40,
+                                      height: isMobile ? 35 : 40,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) =>
+                                          const Icon(Icons.image_not_supported),
                                     ),
                                   ),
-                              ],
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
+                                );
+                              },
                             ),
-                            secondary: ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: Image.network(
-                                product.image ?? '',
-                                width: isMobile ? 35 : 40,
-                                height: isMobile ? 35 : 40,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    const Icon(Icons.image_not_supported),
-                              ),
-                            ),
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 12),
-                          );
-                        },
-                      ),
                     ),
 
                     /// Bouton de validation
