@@ -14,7 +14,7 @@ class ProductItemModel {
   final int? fraisLivraison;
   final int? fraisEmballage;
   int quantite;
-  int sousTotal;
+  // int sousTotal;
   int? stocks; // ✅ stock disponible
 
   ProductItemModel(
@@ -31,7 +31,7 @@ class ProductItemModel {
       required this.fraisLivraison,
       required this.fraisEmballage,
       required this.quantite,
-      required this.sousTotal,
+      // required this.sousTotal,
       required this.stocks});
 
   factory ProductItemModel.fromJson(Map<String, dynamic> json) {
@@ -49,7 +49,7 @@ class ProductItemModel {
         fraisLivraison: json["frais_livraison"] ?? "",
         fraisEmballage: json["frais_emballage"] ?? "",
         quantite: json['quantite'] ?? "",
-        sousTotal: json['sous_total'] ?? "",
+        // sousTotal: json['sous_total'] ?? "",
         stocks: json["stocks"] ?? 0);
   }
 
@@ -68,7 +68,7 @@ class ProductItemModel {
       'frais_livraison': fraisLivraison, // en FCFA
       'frais_emballage': fraisEmballage, //
       'quantite': quantite,
-      'sous_total': sousTotal,
+      // 'sous_total': sousTotal,
       'stocks': stocks
     };
   }

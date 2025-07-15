@@ -604,7 +604,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
 
             /// Client
             Text(
-              "Client: ${vente.clientNom ?? 'Occasionnel'}",
+              "Client: ${vente.clientNom}",
               style: GoogleFonts.roboto(
                   fontSize: 14, fontWeight: FontWeight.w500),
               overflow: TextOverflow.ellipsis,
@@ -643,6 +643,15 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
+                   if (vente.monnaie > 0)
+                  Text(
+                    "Reste: ${vente.monnaie} Fcfa",
+                    style: GoogleFonts.roboto(
+                      fontSize: 14,
+                      color: Colors.red,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
               ],
             ),
 
@@ -661,7 +670,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                         size: 20, color: Colors.blue),
                     onPressed: () => generateFacturePdf(vente),
                   ),
-                  if (vente.reste > 0 || vente.monnaie > 0)
+                  if (vente.reste > 0)
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -680,6 +689,27 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                         context,
                         vente,
                         "règlement",
+                      ),
+                    ),
+                     if (vente.monnaie > 0)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        minimumSize: const Size(0, 30),
+                        backgroundColor: Colors.blueAccent,
+                      ),
+                      child: Text(
+                        'Remboursement',
+                        style: GoogleFonts.roboto(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      onPressed: () => _ouvrirDialogReglement(
+                        context,
+                        vente,
+                        "remboursement",
                       ),
                     ),
                 ],
@@ -788,7 +818,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                         style: GoogleFonts.roboto(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: vente.reste > 0 ? Colors.red : Colors.grey,
+                          color: vente.monnaie > 0 ? Colors.red : Colors.grey,
                         ),
                       )),
                       DataCell(
@@ -802,7 +832,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                               icon: const Icon(Icons.print, size: 20, color: Colors.blue),
                               onPressed: () => generateFacturePdf(vente),
                             ),
-                            if (vente.reste > 0 || vente.monnaie > 0)
+                            if (vente.reste > 0 )
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -818,6 +848,23 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                                 ),
                                 onPressed: () => _ouvrirDialogReglement(
                                   context, vente, "règlement"),
+                              ),
+                               if (vente.monnaie > 0 )
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  minimumSize: const Size(0, 30),
+                                  backgroundColor: Colors.blueAccent,
+                                ),
+                                child: Text(
+                                  'Remboursement',
+                                  style: GoogleFonts.roboto(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                onPressed: () => _ouvrirDialogReglement(
+                                  context, vente, "remboursement"),
                               ),
                           ],
                         ),
@@ -952,10 +999,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                                 ),
                                 _buildCell("${prod.quantite}"),
                                 _buildCell("${prod.prixUnitaire} Fcfa"),
-                                _buildCell(
-                                  "${prod.sousTotal} Fcfa",
-                                  bold: true,
-                                ),
+                               _buildCell("${_calculerSousTotal(prod)} Fcfa", bold: true),
                               ],
                             );
                           }),
@@ -1086,19 +1130,32 @@ Future<void> generateFacturePdf(VenteModel vente) async {
     (await rootBundle.load('assets/logos/LOGO CGTECH.JPG')).buffer.asUint8List(),
   );
 
-  // Calcul des montants de base
-  final double totalHT = vente.produits.fold(0, (sum, p) => sum + (p.prixUnitaire * p.quantite));
-  
-  // Gestion de la TVA
+  // Calcul des montants de base avec remise prise en compte
+  final double totalHT = vente.produits.fold(0, (sum, p) {
+    final prixAvecRemise = (p.remise != null && p.remise! > 0)
+        ? (p.remiseType == 'pourcent'
+            ? p.prixUnitaire * (1 - p.remise! / 100)
+            : p.prixUnitaire - p.remise!)
+        : p.prixUnitaire;
+    return sum + (prixAvecRemise * p.quantite);
+  });
+
+  // Gestion de la TVA avec remise prise en compte
   double totalTVA;
   bool isTvaGlobale = vente.tvaGlobale != null && vente.tvaGlobale! > 0;
-  
+
   if (isTvaGlobale) {
     totalTVA = (totalHT * vente.tvaGlobale!) / 100;
   } else {
     totalTVA = vente.produits.fold(0, (sum, p) {
+      final prixAvecRemise = (p.remise != null && p.remise! > 0)
+          ? (p.remiseType == 'pourcent'
+              ? p.prixUnitaire * (1 - p.remise! / 100)
+              : p.prixUnitaire - p.remise!)
+          : p.prixUnitaire;
+
       final tvaProduit = p.tva ?? 0;
-      return sum + ((p.prixUnitaire * p.quantite * tvaProduit) / 100);
+      return sum + ((prixAvecRemise * p.quantite * tvaProduit) / 100);
     });
   }
 
@@ -1211,12 +1268,6 @@ Future<void> generateFacturePdf(VenteModel vente) async {
                           textAlign: pw.TextAlign.right,
                           style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                     ),
-                    // pw.Padding(
-                    //   padding: const pw.EdgeInsets.all(5),
-                    //   child: pw.Text(isTvaGlobale ? "Mode TVA" : "TVA",
-                    //       textAlign: pw.TextAlign.right,
-                    //       style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    // ),
                     pw.Padding(
                       padding: const pw.EdgeInsets.all(5),
                       child: pw.Text("Montant HT",
@@ -1226,9 +1277,14 @@ Future<void> generateFacturePdf(VenteModel vente) async {
                   ],
                 ),
                 ...vente.produits.map((p) {
-                  final prixHT = p.prixUnitaire;
-                  final totalHT = prixHT * p.quantite;
-                  
+                  final prixAvecRemise = (p.remise != null && p.remise! > 0)
+                      ? (p.remiseType == 'pourcent'
+                          ? p.prixUnitaire * (1 - p.remise! / 100)
+                          : p.prixUnitaire - p.remise!)
+                      : p.prixUnitaire;
+
+                  final totalHTProduit = prixAvecRemise * p.quantite;
+
                   return pw.TableRow(
                     children: [
                       pw.Padding(
@@ -1252,18 +1308,12 @@ Future<void> generateFacturePdf(VenteModel vente) async {
                       ),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(5),
-                        child: pw.Text(currencyFormat.format(prixHT),
+                        child: pw.Text(currencyFormat.format(prixAvecRemise),
                             textAlign: pw.TextAlign.right),
                       ),
-                      // pw.Padding(
-                      //   padding: const pw.EdgeInsets.all(5),
-                      //   child: pw.Text(
-                      //     isTvaGlobale ? "Globale" : (p.tva ?? 0) > 0 ? "${p.tva}%" : "-",
-                      //     textAlign: pw.TextAlign.right),
-                      // ),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(5),
-                        child: pw.Text(currencyFormat.format(totalHT),
+                        child: pw.Text(currencyFormat.format(totalHTProduit),
                             textAlign: pw.TextAlign.right),
                       ),
                     ],
@@ -1446,16 +1496,6 @@ Future<void> generateFacturePdf(VenteModel vente) async {
                 style: pw.TextStyle(
                     fontStyle: pw.FontStyle.italic,
                     fontSize: 12)),
-            // if (profil?.nomEntreprise != null) ...[
-            //   pw.SizedBox(height: 5),
-            //   pw.Text(profil!.nomEntreprise!,
-            //       style: pw.TextStyle(
-            //           fontWeight: pw.FontWeight.bold,
-            //           fontSize: 12)),
-            // ],
-            // if (profil?.contactEntreprise != null)
-            //   pw.Text("Contact: ${profil!.contactEntreprise}",
-            //       style: const pw.TextStyle(fontSize: 12)),
           ],
         );
       },
@@ -1649,6 +1689,7 @@ Future<void> generateFacturePdf(VenteModel vente) async {
               final res =
                   await ServicesReglements().postReglements(reglement, token);
               if (res.statusCode == 201) {
+                if (!context.mounted) return; // vérifie que le widget est encore dans l’arbre
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     backgroundColor: Colors.green,
@@ -1659,8 +1700,10 @@ Future<void> generateFacturePdf(VenteModel vente) async {
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     )));
+               if (!context.mounted) return; // vérifie que le widget est encore dans l’arbre
                 fetchVentes();
               } else {
+                if (!mounted) return; // vérifie que le widget est encore dans l’arbre
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Erreur lors du règlement")));
               }
@@ -1670,4 +1713,18 @@ Future<void> generateFacturePdf(VenteModel vente) async {
       ),
     );
   }
+
+  int _calculerSousTotal(ProductItemModel prod) {
+  int prixUnitaire = prod.prixUnitaire;
+  if (prod.remiseType == 'fcfa') {
+    prixUnitaire -= prod.remise!;
+  } else if (prod.remiseType == 'pourcent') {
+    prixUnitaire -= ((prixUnitaire * prod.remise!) ~/ 100);
+  }
+  if (prixUnitaire < 0) prixUnitaire = 0;
+
+  int sousTotalBrut = prixUnitaire * prod.quantite;
+  double montantTVA = (prod.tva! > 0) ? ((sousTotalBrut * prod.tva!) / 100) : 0;
+  return (sousTotalBrut + montantTVA + prod.fraisLivraison! + prod.fraisEmballage!).round();
+}
 }

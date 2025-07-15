@@ -38,6 +38,8 @@ class _ClientsViewState extends State<ClientsView> {
   final TextEditingController _reste = TextEditingController();
   final TextEditingController _monnaie = TextEditingController();
   final TextEditingController _recommandation = TextEditingController();
+  final TextEditingController _address = TextEditingController();
+
 
 // Statut sélectionné par défaut
   String _statut = "actif";
@@ -58,6 +60,7 @@ class _ClientsViewState extends State<ClientsView> {
     _reste.dispose();
     _monnaie.dispose();
     _recommandation.dispose();
+    _address.dispose();
     super.dispose();
   }
 
@@ -135,6 +138,7 @@ class _ClientsViewState extends State<ClientsView> {
       final res = await api.deleteClients(id, token);
       final body = res.data;
       if (res.statusCode == 200) {
+           if (!mounted) return;
         // ignore: use_build_context_synchronously
         api.showSnackBarSuccessPersonalized(context, body["message"]);
         _getClients(); // Actualiser la liste des catégories
@@ -161,6 +165,7 @@ class _ClientsViewState extends State<ClientsView> {
           "adminId": adminId,
           "nom": _nom.text,
           "contact": _contact.text,
+          "client_address":_address.text,
           "credit_total": int.tryParse(_creditTotal.text) ?? 0,
           "montant_paye": int.tryParse(_montantPaye.text) ?? 0,
           "reste": int.tryParse(_reste.text) ?? 0,
@@ -193,13 +198,16 @@ class _ClientsViewState extends State<ClientsView> {
         Navigator.pop(context); // Ferme le dialog
 
         if (res.statusCode == 201) {
+          if (!context.mounted) return;
           api.showSnackBarSuccessPersonalized(context, res.data["message"]);
+             if (!context.mounted) return;
           _getClients();
+          
         } else {
           api.showSnackBarErrorPersonalized(context, res.data["message"]);
         }
       } catch (e) {
-        if (context.mounted) {
+        if (!context.mounted) {
           Navigator.pop(context);
           api.showSnackBarErrorPersonalized(context, e.toString());
         }
@@ -360,6 +368,12 @@ class _ClientsViewState extends State<ClientsView> {
                                               fontSize: 12,
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold))),
+                                   DataColumn(
+                                      label: Text('ADDRESSE',
+                                          style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold))),
                                   DataColumn(
                                       label: Text('STATUT',
                                           style: GoogleFonts.poppins(
@@ -387,7 +401,7 @@ class _ClientsViewState extends State<ClientsView> {
                                           ),
                                           child: ClipOval(
                                               child: Image.asset(
-                                            "assets/images/contact2.png",
+                                            "assets/images/profil_default.png",
                                             width: 50,
                                             height: 50,
                                           )),
@@ -405,6 +419,11 @@ class _ClientsViewState extends State<ClientsView> {
                                       // Tél
                                       DataCell(
                                           Text(fournisseur.contact.toString(),
+                                              style: GoogleFonts.roboto(
+                                                fontSize: 14,
+                                              ))),
+                                       DataCell(
+                                          Text(fournisseur.clientAdresse.toString(),
                                               style: GoogleFonts.roboto(
                                                 fontSize: 14,
                                               ))),
@@ -633,6 +652,22 @@ class _ClientsViewState extends State<ClientsView> {
                           : null,
                       decoration: InputDecoration(
                         hintText: "Contact du client",
+                        hintStyle: GoogleFonts.roboto(fontSize: 14),
+                        prefixIcon: const Icon(
+                          Icons.phone,
+                          color: Colors.purpleAccent,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),                    
+                    TextFormField(
+                      controller: _address,
+                      keyboardType: TextInputType.name,
+                      validator: (value) => value!.isEmpty
+                          ? "Veuillez entrer l'addresse du client"
+                          : null,
+                      decoration: InputDecoration(
+                        hintText: "Addresse du client",
                         hintStyle: GoogleFonts.roboto(fontSize: 14),
                         prefixIcon: const Icon(
                           Icons.phone,

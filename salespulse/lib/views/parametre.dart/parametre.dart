@@ -14,80 +14,96 @@ class ParametresPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        leading: IconButton(onPressed:()=> Navigator.pop(context), icon:const Icon(Icons.arrow_back_ios_rounded, color: Colors.white,)),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+        ),
         backgroundColor: Colors.blueGrey,
-        title: const Text('Paramètres',
-            style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text(
+          'Paramètres',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         centerTitle: true,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Gérez les données de base et la configuration de votre application',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-            ),
-            const SizedBox(height: 24),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: MediaQuery.of(context).size.width > 600 ? 2 : 1,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: MediaQuery.of(context).size.width > 600 ? 4 : 1.1,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 700;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSettingCard(
-                  context,
-                  icon: Iconsax.building,
-                  title: 'Infos Entreprise',
-                  description: 'Gérez le nom, l\'adresse et le logo de votre société',
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context)=> const UpdateProfil()))),
-                
-                _buildSettingCard(
-                  context,
-                  icon: Iconsax.setting,
-                  title: 'Securisation de compte',
-                  description: 'Vous pouvez modifier le mot de passe de votre compte pour plus de securité',
-                  onTap: () =>  Navigator.push(context, MaterialPageRoute(builder: (context)=> const UpdatePassword()))),
-                
-                _buildSettingCard(
-                  context,
-                  icon: Iconsax.document,
-                  title: 'Documents',
-                  description: 'Personnalisez le logo de votre entreprise',
-                  onTap: () =>  Navigator.push(context, MaterialPageRoute(builder: (context)=> const LogoEntrepriseScreen()))),
-                
-                _buildSettingCard(
-                  context,
-                  icon: Iconsax.tag,
-                  title: 'Gestion des Marques',
-                  description: 'Ajoutez et modifiez les marques de produits',
-                  onTap: () => _navigateTo(context, '/marques')),
-                
-                _buildSettingCard(
-                  context,
-                  icon: Iconsax.category,
-                  title: 'Gestion des Types',
-                  description: 'Gérez les catégories d\'articles',
-                  onTap: () => _navigateTo(context, '/categories')),
-                
-                _buildSettingCard(
-                  context,
-                  icon: Iconsax.shop,
-                  title: 'Entrepôts Spéciaux',
-                  description: 'Désignez les entrepôts pour les retours et autres fonctions',
-                  onTap: () => _navigateTo(context, '/entrepots')),
+                Text(
+                  'Gérez les données de base et la configuration de votre application',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 24),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _settings(context).length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isWide ? 2 : 1,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: isWide ? 3.5 : 1.9,
+                  ),
+                  itemBuilder: (context, index) => _settings(context)[index],
+                ),
               ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
+  }
+
+  List<Widget> _settings(BuildContext context) {
+    return [
+      _buildSettingCard(
+        context,
+        icon: Iconsax.building,
+        title: 'Infos Entreprise',
+        description: 'Gérez le nom, l\'adresse de votre société',
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UpdateProfil())),
+      ),
+      _buildSettingCard(
+        context,
+        icon: Iconsax.setting,
+        title: 'Securisation de compte',
+        description: 'Vous pouvez modifier le mot de passe  ',
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UpdatePassword())),
+      ),
+      _buildSettingCard(
+        context,
+        icon: Iconsax.document,
+        title: 'Logos',
+        description: 'Personnalisez le logo de votre entreprise',
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogoEntrepriseScreen())),
+      ),
+      _buildSettingCard(
+        context,
+        icon: Iconsax.category,
+        title: 'Gestion des factures',
+        description: "Personnalisez le numéro de facture",
+        onTap: () => _navigateTo(context, '/categories'),
+      ),
+      _buildSettingCard(
+        context,
+        icon: Iconsax.message,
+        title: 'Message',
+        description: 'Personnalisez le message de facture',
+        onTap: () => _navigateTo(context, '/entrepots'),
+      ),
+      _buildSettingCard(
+        context,
+        icon: Iconsax.profile_delete,
+        title: 'Suppression definitive',
+        description: 'Supprimer votre compte',
+        onTap: () => _navigateTo(context, '/entrepots'),
+      ),
+    ];
   }
 
   Widget _buildSettingCard(
@@ -99,8 +115,8 @@ class ParametresPage extends StatelessWidget {
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
@@ -111,30 +127,29 @@ class ParametresPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon,
-                    size: 24,
-                    color: Theme.of(context).colorScheme.primary),
+                child: Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
               ),
-              const SizedBox(height: 16),
-              Text(title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      )),
               const SizedBox(height: 8),
-              Text(description,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      )),
-              const Spacer(),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Icon(Iconsax.arrow_right,
-                    color: Theme.of(context).colorScheme.primary),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 4),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Icon(Iconsax.arrow_right, color: Theme.of(context).colorScheme.primary),
+                ),
               ),
             ],
           ),

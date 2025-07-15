@@ -202,13 +202,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     int tva = result["tva"];
     int fraisLivraison = result["fraisLivraison"];
     int fraisEmballage = result["fraisEmballage"];
-
     int prixInitial = produit.isPromo ? produit.prixPromo : produit.prixVente;
-    int prixRemise = _calculateDiscountedPrice(prixInitial, remise, remiseType);
-    int sousTotalBrut = prixRemise * qte;
-    double montantTVA = (tva > 0) ? ((sousTotalBrut * tva) / 100) : 0;
-    int sousTotalFinal =
-        (sousTotalBrut + montantTVA + fraisLivraison + fraisEmballage).round();
 
     final item = ProductItemModel(
       productId: produit.id,
@@ -217,7 +211,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
       prixAchat: produit.prixAchat,
       prixUnitaire: prixInitial,
       quantite: qte,
-      sousTotal: sousTotalFinal,
+      // sousTotal: sousTotalFinal,
       stocks: produit.stocks,
       remise: remise,
       remiseType: remiseType,
@@ -230,17 +224,27 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
 
     setState(() {
       panier.add(item);
-      total = panier.fold(0, (sum, p) => sum + p.sousTotal);
+      // total = panier.fold(0, (sum, p) => sum + p.sousTotal);
+       total = _estimerTotalPanier(); // visuel seulement
     });
   }
 
-  int _calculateDiscountedPrice(
-      int prixInitial, int remise, String remiseType) {
-    int prixRemise = remiseType == 'pourcent'
-        ? (prixInitial - ((prixInitial * remise) / 100).round())
-        : (prixInitial - remise);
-    return prixRemise < 0 ? 0 : prixRemise;
-  }
+  int _estimerTotalPanier() {
+  return panier.fold(0, (sum, p) {
+    int prix = p.prixUnitaire;
+    if (p.remiseType == 'fcfa') {
+      prix -= p.remise!;
+    } else if (p.remiseType == 'pourcent') {
+      prix -= (prix * p.remise! ~/ 100);
+    }
+    if (prix < 0) prix = 0;
+
+    int brut = prix * p.quantite;
+    double tva = (p.tva! > 0) ? (brut * p.tva! / 100) : 0;
+
+    return sum + (brut + tva + p.fraisLivraison! + p.fraisEmballage!).round();
+  });
+}
 
   Future<void> _validerVente() async {
     if (panier.isEmpty) {
@@ -257,8 +261,10 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
         venteMap, Provider.of<AuthProvider>(context, listen: false).token);
 
     if (response.statusCode == 201) {
+      if (!mounted) return; // vérifie que le widget est encore dans l’arbre
       _handleSuccessfulSale(response.data['vente']);
     } else {
+      if (!mounted) return; // vérifie que le widget est encore dans l’arbre
       _showErrorSnackBar("Échec de l'enregistrement de la vente");
     }
   }
@@ -288,11 +294,9 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
 
   bool _validateClientForCreditSales() {
     int montantRecu = int.tryParse(_montantRecuController.text) ?? 0;
-    int livraison = int.tryParse(_livraisonController.text) ?? 0;
-    int emballage = int.tryParse(_emballageController.text) ?? 0;
-    final totalAmount = total + livraison + emballage;
+    final totalAmount = total ;
 
-    if ((montantRecu < totalAmount) && (selectedClient == null)) {
+    if (montantRecu < totalAmount && selectedClient == null) {
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -351,7 +355,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
   }
 
   // Cohérence mode paiement/montant
-  if ((paymentMode == "cash" || paymentMode == "mobile_money") && montantRecu < (total + livraison + emballage)) {
+  if ((paymentMode == "cash" || paymentMode == "mobile_money") && montantRecu < total ) {
      showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -431,15 +435,6 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
       return null ;
     // throw ArgumentError("Nom client requis pour les ventes en crédit/partiel");
   }
-
-    // String paymentMode ="cash";
-    // if (montantRecu > 0 && montantRecu < (total + livraison + emballage)) {
-    //   paymentMode = "partiel";
-    // } else if (montantRecu == 0) {
-    //   statut = "crédit";
-    // }else{
-    //   paymentMode = selectedPaiement;
-    // }
 
     String clientContact = selectedClient?.contact ?? contactController.text;
     String clientAddress = selectedClient?.clientAdresse ?? adresseController.text;
@@ -946,7 +941,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     if (change < 0 && item.quantite == 1) {
       setState(() {
         panier.removeAt(index);
-        total = panier.fold(0, (sum, e) => sum + e.sousTotal);
+         total = _estimerTotalPanier();
       });
       return;
     }
@@ -958,8 +953,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
 
     setState(() {
       item.quantite += change;
-      item.sousTotal = item.quantite * item.prixUnitaire;
-      total = panier.fold(0, (sum, e) => sum + e.sousTotal);
+       total = _estimerTotalPanier();
     });
   }
 
@@ -1201,32 +1195,34 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     );
   }
 
+  //recalcule pour affichage temporaire de mis a jours de total dans le front
   void recalculerTotal() {
-    int nouveauTotal = panier.fold(0, (sum, item) => sum + item.sousTotal);
+  int nouveauTotal = _estimerTotalPanier();
 
-    // Appliquer remise globale
-    int remise = int.tryParse(_remiseGlobaleController.text) ?? 0;
-    if (_remiseGlobaleType == "pourcent") {
-      nouveauTotal -= ((nouveauTotal * remise) / 100).round();
-    } else {
-      nouveauTotal -= remise;
-    }
-
-    // Appliquer TVA globale
-    int tva = int.tryParse(_tvaGlobaleController.text) ?? 0;
-    if (tva > 0) {
-      nouveauTotal += ((nouveauTotal * tva) / 100).round();
-    }
-
-    // Ajouter frais
-    int livraison = int.tryParse(_livraisonController.text) ?? 0;
-    int emballage = int.tryParse(_emballageController.text) ?? 0;
-    nouveauTotal += livraison + emballage;
-
-    setState(() {
-      total = nouveauTotal;
-    });
+  // Appliquer remise globale
+  int remise = int.tryParse(_remiseGlobaleController.text) ?? 0;
+  if (_remiseGlobaleType == "pourcent") {
+    nouveauTotal -= ((nouveauTotal * remise) / 100).round();
+  } else {
+    nouveauTotal -= remise;
   }
+
+  // Appliquer TVA globale
+  int tva = int.tryParse(_tvaGlobaleController.text) ?? 0;
+  if (tva > 0) {
+    nouveauTotal += ((nouveauTotal * tva) / 100).round();
+  }
+
+  // Ajouter frais fixes
+  int livraison = int.tryParse(_livraisonController.text) ?? 0;
+  int emballage = int.tryParse(_emballageController.text) ?? 0;
+  nouveauTotal += livraison + emballage;
+
+  setState(() {
+    total = nouveauTotal;
+  });
+}
+
 
   void _ouvrirModalSelectionProduit() {
     List<ProductModel> produitsFiltres = List.from(allProducts);

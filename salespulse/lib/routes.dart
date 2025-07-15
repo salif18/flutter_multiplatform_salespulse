@@ -271,7 +271,7 @@ class _RoutesState extends State<Routes> {
                 _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
                     iconBgColor: Colors.redAccent),
               ],
-
+             if (role == "admin")
               _buildExpandableSectionHeader(
                 'ADMINISTRATION',
                  Icons.admin_panel_settings,
@@ -286,6 +286,7 @@ class _RoutesState extends State<Routes> {
               ],
 
               const Divider(color: Colors.grey),
+                if (role == "admin")
               _customSidebarAction(
                   icon: Icons.settings,
                   label: "Paramètres",
@@ -387,13 +388,14 @@ class _RoutesState extends State<Routes> {
               if (role == "admin")
                 _buildDrawerItem(
                     Icons.stacked_bar_chart_rounded, "Tableau de bord", 0,
-                    iconBgColor: Colors.orange),
-              _buildDrawerItem(
-                  Icons.workspace_premium, "Tendance des produits", 1,
-                  iconBgColor: Colors.pink),
+                    iconBgColor: Colors.blueGrey),
+             
                 if (role == "admin")
-                _buildDrawerItem(Icons.stacked_line_chart_outlined, "Rapports généraux", 2,
-                    iconBgColor: Colors.pink),
+                _buildDrawerItem(Icons.stacked_line_chart_outlined, "Rapports généraux", 1,
+                    iconBgColor: Colors.green),
+                 _buildDrawerItem(
+                  Icons.workspace_premium, "Tendance des produits", 2,
+                  iconBgColor: Colors.orange),
             ],
 
             _buildExpandableSectionHeader(
@@ -469,7 +471,7 @@ class _RoutesState extends State<Routes> {
               _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
                   iconBgColor: Colors.redAccent),
             ],
-
+             if (role == "admin")
             _buildExpandableSectionHeader(
               'ADMINISTRATION',
                Icons.admin_panel_settings,
@@ -485,6 +487,7 @@ class _RoutesState extends State<Routes> {
             ],
 
             const Divider(color: Colors.grey),
+              if (role == "admin")
             _customSidebarAction(
                 icon: Icons.settings,
                 label: "Paramètres",
@@ -579,8 +582,8 @@ class _RoutesState extends State<Routes> {
     ];
 
     final allowedIndexes = [
-      1, 3, 4, 5, 6, 8, 9,10, 11, 12, 13,
-      if (role == "admin") ...[0, 7, 2, 14, 15]
+       2, 3,4, 5, 6, 7,8, 9,10, 11, 12, 13,
+      if (role == "admin") ...[0, 1, 14, 15]
     ];
 
     if (!allowedIndexes.contains(_currentIndex)) {

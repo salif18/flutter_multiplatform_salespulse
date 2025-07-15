@@ -373,7 +373,7 @@ class _FournisseurViewState extends State<FournisseurView> {
                                           ),
                                           child: ClipOval(
                                               child: Image.asset(
-                                            "assets/images/contact2.png",
+                                            "assets/images/profil_default.png",
                                             width: 50,
                                             height: 50,
                                           )),

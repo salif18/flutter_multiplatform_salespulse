@@ -177,7 +177,8 @@ class _ClientsEnRetardScreenState extends State<ClientsEnRetardScreen> {
     }
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
+      appBar: AppBar( 
+         automaticallyImplyLeading: false,     
         backgroundColor: Colors.white, //const Color(0xff001c30),
         title: Text("Clients en Retard de Paiement",
             style: GoogleFonts.poppins(fontSize: 16, color: Colors.black)),
