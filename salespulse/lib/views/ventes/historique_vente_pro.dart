@@ -1495,7 +1495,7 @@ Future<void> generateFacturePdf(VenteModel vente) async {
               ],
             ),
             pw.SizedBox(height: 10),
-            pw.Text("Merci pour votre confiance !",
+            pw.Text(vente.factureFooter ?? "Merci pour votre confiance !",
                 style: pw.TextStyle(
                     fontStyle: pw.FontStyle.italic,
                     fontSize: 12)),

@@ -1203,29 +1203,30 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
         // Frais livraison
         Wrap(
           children: [SizedBox(
-            width: 200,
+            width: 100,
             child: TextField(
               style:
                   GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.normal),
               controller: _livraisonController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                  labelText: "Frais livraison (Fcfa)",
+                  labelText: "Frais livraison",
                   labelStyle: GoogleFonts.roboto(
                       fontSize: 16, fontWeight: FontWeight.normal)),
               onChanged: (val) => recalculerTotal(),
             ),
           ),
+          const SizedBox(width: 10,),
             // Frais emballage
         SizedBox(
-          width: 200,
+          width: 100,
           child: TextField(
             style:
                 GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.normal),
             controller: _emballageController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-                labelText: "Frais emballage (Fcfa)",
+                labelText: "Frais emballage",
                 labelStyle: GoogleFonts.roboto(
                     fontSize: 16, fontWeight: FontWeight.normal)),
             onChanged: (val) => recalculerTotal(),

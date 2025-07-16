@@ -95,6 +95,7 @@ class VenteModel {
   final String typePaiement;
   final String statut;
   final DateTime date;
+  final String? factureFooter;
 
   VenteModel({
     required this.id,
@@ -117,6 +118,7 @@ class VenteModel {
     required this.typePaiement,
     required this.statut,
     required this.date,
+    required this.factureFooter
   });
 
   factory VenteModel.fromJson(Map<String, dynamic> json) {
@@ -144,6 +146,7 @@ class VenteModel {
       typePaiement: json['type_paiement'] ?? "",
       statut: json['statut'],
       date: DateTime.parse(json['date'] ?? ""),
+      factureFooter: json["facture_footer"] ?? ""
     );
   }
 
@@ -169,6 +172,7 @@ class VenteModel {
       'type_paiement': typePaiement,
       'statut': statut,
       'date': date.toIso8601String(),
+      'facture_footer':factureFooter
     };
   }
 }

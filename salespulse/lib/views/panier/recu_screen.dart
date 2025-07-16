@@ -674,7 +674,7 @@ class RecuVenteScreen extends StatelessWidget {
                 ],
               ),
               pw.SizedBox(height: 10),
-              pw.Text("Merci pour votre confiance !",
+              pw.Text(data["facture_footer"],
                   style: pw.TextStyle(
                       fontStyle: pw.FontStyle.italic, fontSize: 12)),
             ],

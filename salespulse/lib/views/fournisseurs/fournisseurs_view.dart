@@ -454,152 +454,123 @@ class _FournisseurViewState extends State<FournisseurView> {
     );
   }
 
-//FENETRE POUR AJOUTER CATEGORIE
-  void _addFournisseurShow(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Center(
-            child: Text(
-              "Ajouter categories",
-              style: GoogleFonts.roboto(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
+void _addFournisseurShow(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      final isSmallScreen = MediaQuery.of(context).size.width < 500;
+
+      return AlertDialog(
+        title: Center(
+          child: Text(
+            "Ajouter catégories",
+            style: GoogleFonts.roboto(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Form(
-                key: _globalKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _prenom,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Veuillez entrer le prenom du fournisseur';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Prénom du fournisseur",
-                        hintStyle: GoogleFonts.roboto(fontSize: 14),
-                        prefixIcon: const Icon(
-                          Icons.person,
-                          size: 24,
-                          color: Colors.purpleAccent,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: _nom,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Veuillez entrer le nom du fournisseur';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Nom du fournisseur",
-                        hintStyle:
-                            GoogleFonts.roboto(fontSize: AppSizes.fontMedium),
-                        prefixIcon: const Icon(
-                          Icons.person,
-                          size: 24,
-                          color: Colors.purpleAccent,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: _numero,
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Veuillez entrer le numero du fournisseur';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Numero du fournisseur",
-                        hintStyle: GoogleFonts.roboto(fontSize: 14),
-                        prefixIcon: const Icon(
-                          Icons.phone,
-                          size: 24,
-                          color: Colors.purpleAccent,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: _produit,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Veuillez entrer le nom du produit';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Nom du produit",
-                        hintStyle: GoogleFonts.roboto(fontSize: 14),
-                        prefixIcon: const Icon(
-                          Icons.article_rounded,
-                          size: 24,
-                          color: Colors.purpleAccent,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: _address,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Veuillez entrer address du fournisseur';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Address du fournisseur",
-                        hintStyle: GoogleFonts.roboto(fontSize: 14),
-                        prefixIcon: const Icon(
-                          Icons.location_on,
-                          size: 24,
-                          color: Colors.purpleAccent,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
+        ),
+        content: SingleChildScrollView( // pour permettre le scroll sur petits écrans
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isSmallScreen ? double.infinity : 400,
+            ),
+            child: Form(
+              key: _globalKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildTextField(
+                    controller: _prenom,
+                    hint: "Prénom du fournisseur",
+                    icon: Icons.person,
+                    validatorText: "Veuillez entrer le prénom du fournisseur",
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    controller: _nom,
+                    hint: "Nom du fournisseur",
+                    icon: Icons.person,
+                    validatorText: "Veuillez entrer le nom du fournisseur",
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    controller: _numero,
+                    hint: "Numéro du fournisseur",
+                    icon: Icons.phone,
+                    inputType: TextInputType.number,
+                    validatorText: "Veuillez entrer le numéro du fournisseur",
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    controller: _produit,
+                    hint: "Nom du produit",
+                    icon: Icons.article_rounded,
+                    validatorText: "Veuillez entrer le nom du produit",
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    controller: _address,
+                    hint: "Adresse du fournisseur",
+                    icon: Icons.location_on,
+                    validatorText: "Veuillez entrer l'adresse du fournisseur",
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
                       onPressed: () {
-                        _sendToserver(context);
-                        Navigator.pop(context);
+                        if (_globalKey.currentState!.validate()) {
+                          _sendToserver(context);
+                          Navigator.pop(context);
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 255, 136, 0),
-                        minimumSize: const Size(400, 50),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: Text(
                         "Enregistrer",
                         style: GoogleFonts.roboto(
                           fontSize: 14,
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           color: Colors.white,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+Widget _buildTextField({
+  required TextEditingController controller,
+  required String hint,
+  required IconData icon,
+  required String validatorText,
+  TextInputType inputType = TextInputType.text,
+}) {
+  return TextFormField(
+    controller: controller,
+    keyboardType: inputType,
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return validatorText;
+      }
+      return null;
+    },
+    decoration: InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.roboto(fontSize: 14),
+      prefixIcon: Icon(icon, size: 24, color: Colors.purpleAccent),
+    ),
+  );
+}
 
 // FENTRE DIALOGUE POUR CONFIRMER LA SUPPRESSION
   Future<bool> showRemoveFournisseur(BuildContext context) async {
