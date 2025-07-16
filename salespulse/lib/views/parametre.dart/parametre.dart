@@ -3,6 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
+import 'package:salespulse/providers/auth_provider.dart';
+import 'package:salespulse/services/auth_api.dart';
+import 'package:salespulse/views/auth/login_view.dart';
 import 'package:salespulse/views/auth/update_password.dart';
 import 'package:salespulse/views/parametre.dart/facture_setting_page.dart';
 import 'package:salespulse/views/profil/logo_entreprise.dart';
@@ -111,7 +115,7 @@ class ParametresPage extends StatelessWidget {
         icon: Iconsax.profile_delete,
         title: 'Suppression definitive',
         description: 'Supprimer votre compte',
-        onTap: () => _navigateTo(context, '/entrepots'),
+        onTap: () => _confirmAccountDeletion(context),
       ),
     ];
   }
@@ -176,30 +180,56 @@ class ParametresPage extends StatelessWidget {
     );
   }
 
-  void _navigateTo(BuildContext context, String route) {
-    Navigator.pushNamed(context, route);
-  }
+  void _confirmAccountDeletion(BuildContext context) {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
 
-  // void _confirmAccountDeletion(context) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text("Confirmer la suppression"),
-  //       content: const Text(
-  //           "Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible."),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("Annuler"),
-  //         ),
-  //         TextButton(
-  //           onPressed: () {
-  //             Navigator.pop(context);
-  //           },
-  //           child: const Text("Supprimer", style: TextStyle(color: Colors.red)),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmer la suppression"),
+        content: const Text(
+            "Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible. Vous perdrez toutes vos données."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Annuler"),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              // Appel API
+              final success = await ServicesAuth().deleteAdminCounts(token);
+
+              if (success) {
+                // Déconnexion + redirection vers login
+                Provider.of<AuthProvider>(context, listen: false)
+                    .logoutButton();
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text("Compte supprimé avec succès")),
+                  );
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const LoginView()),
+                    (route) => false,
+                  );
+                }
+              } else {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text("Échec de la suppression du compte")),
+                  );
+                }
+              }
+            },
+            child: const Text("Supprimer", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 }

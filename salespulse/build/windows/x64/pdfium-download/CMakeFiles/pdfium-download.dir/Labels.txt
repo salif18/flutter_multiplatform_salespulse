@@ -1,0 +1,14 @@
+# Target labels
+ pdfium-download
+# Source files and their labels
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/pdfium-download
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3400678aaa47780f4edcad5d958ccfa2/pdfium-download.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/748a7f9db5d3c3ccc791294ad6ad7048/pdfium-download-complete.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-build.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-configure.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-download.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-install.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-mkdir.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-patch.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-test.rule
+C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/CMakeFiles/3b3636fc69a1a17e4ee8226ff15f576a/pdfium-download-update.rule

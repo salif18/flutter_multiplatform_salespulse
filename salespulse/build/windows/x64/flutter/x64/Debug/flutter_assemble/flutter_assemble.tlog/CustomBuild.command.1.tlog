@@ -1,0 +1,28 @@
+^C:\USERS\KONATE\DOCUMENTS\DEVAPP\FLUTTER_VENTE_MANAGER_DESKTOP\SALESPULSE\BUILD\WINDOWS\X64\CMAKEFILES\C6E3B82892E65B375E45A05BCE65A288\FLUTTER_WINDOWS.DLL.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E env FLUTTER_ROOT=C:\flutter\flutter PROJECT_DIR=C:\Users\KONATE\Documents\Devapp\flutter_vente_manager_desktop\salespulse FLUTTER_ROOT=C:\flutter\flutter FLUTTER_EPHEMERAL_DIR=C:\Users\KONATE\Documents\Devapp\flutter_vente_manager_desktop\salespulse\windows\flutter\ephemeral PROJECT_DIR=C:\Users\KONATE\Documents\Devapp\flutter_vente_manager_desktop\salespulse FLUTTER_TARGET=C:\Users\KONATE\Documents\Devapp\flutter_vente_manager_desktop\salespulse\lib\main.dart DART_DEFINES=RkxVVFRFUl9WRVJTSU9OPTMuMzIuNg==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MDc3YjRhNGNlMQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049NzJmMmIxOGJiMA==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My44LjE= DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=C:\Users\KONATE\Documents\Devapp\flutter_vente_manager_desktop\salespulse\.dart_tool\package_config.json C:/flutter/flutter/packages/flutter_tools/bin/tool_backend.bat windows-x64 Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KONATE\DOCUMENTS\DEVAPP\FLUTTER_VENTE_MANAGER_DESKTOP\SALESPULSE\BUILD\WINDOWS\X64\CMAKEFILES\183F290C7EE251547B14A78AD681F881\FLUTTER_ASSEMBLE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\KONATE\DOCUMENTS\DEVAPP\FLUTTER_VENTE_MANAGER_DESKTOP\SALESPULSE\WINDOWS\FLUTTER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/windows -BC:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64 --check-stamp-file C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/flutter/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

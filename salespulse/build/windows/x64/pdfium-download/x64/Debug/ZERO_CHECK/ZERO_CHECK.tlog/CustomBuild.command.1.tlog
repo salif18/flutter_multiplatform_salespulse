@@ -1,0 +1,10 @@
+^C:\USERS\KONATE\DOCUMENTS\DEVAPP\FLUTTER_VENTE_MANAGER_DESKTOP\SALESPULSE\BUILD\WINDOWS\X64\PDFIUM-DOWNLOAD\CMAKEFILES\3400678AAA47780F4EDCAD5D958CCFA2\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download -BC:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/KONATE/Documents/Devapp/flutter_vente_manager_desktop/salespulse/build/windows/x64/pdfium-download/pdfium-download.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -109,6 +109,18 @@ class ServicesAuth {
     ));
   }
 
+   //obtenir categorie pour formulaire
+  deleteAdminCounts(token) async {
+    var uri = "$domaineName/auth/admin-compte";
+    return await dio.get(uri,
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer $token"
+          },
+        ));
+  }
+
   //message en cas d'erreur!
   void showSnackBarErrorPersonalized(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
