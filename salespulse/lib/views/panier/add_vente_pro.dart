@@ -1201,31 +1201,41 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
         const SizedBox(height: 16),
 
         // Frais livraison
-        TextField(
-          style:
-              GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.normal),
-          controller: _livraisonController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-              labelText: "Frais livraison (Fcfa)",
-              labelStyle: GoogleFonts.roboto(
-                  fontSize: 16, fontWeight: FontWeight.normal)),
-          onChanged: (val) => recalculerTotal(),
+        Wrap(
+          children: [SizedBox(
+            width: 200,
+            child: TextField(
+              style:
+                  GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.normal),
+              controller: _livraisonController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                  labelText: "Frais livraison (Fcfa)",
+                  labelStyle: GoogleFonts.roboto(
+                      fontSize: 16, fontWeight: FontWeight.normal)),
+              onChanged: (val) => recalculerTotal(),
+            ),
+          ),
+            // Frais emballage
+        SizedBox(
+          width: 200,
+          child: TextField(
+            style:
+                GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.normal),
+            controller: _emballageController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+                labelText: "Frais emballage (Fcfa)",
+                labelStyle: GoogleFonts.roboto(
+                    fontSize: 16, fontWeight: FontWeight.normal)),
+            onChanged: (val) => recalculerTotal(),
+          ),
+        ),
+          ],
         ),
         const SizedBox(height: 16),
 
-        // Frais emballage
-        TextField(
-          style:
-              GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.normal),
-          controller: _emballageController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-              labelText: "Frais emballage (Fcfa)",
-              labelStyle: GoogleFonts.roboto(
-                  fontSize: 16, fontWeight: FontWeight.normal)),
-          onChanged: (val) => recalculerTotal(),
-        ),
+      
         const SizedBox(height: 24),
 
         // Bouton Valider
