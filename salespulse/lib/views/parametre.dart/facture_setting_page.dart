@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:salespulse/providers/auth_provider.dart';
 import 'package:salespulse/services/facture_setting_api.dart';
@@ -108,7 +109,9 @@ class _FactureSettingsPageState extends State<FactureSettingsPage> {
         centerTitle: true,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+            ? Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.orange, size: 50))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Center(
