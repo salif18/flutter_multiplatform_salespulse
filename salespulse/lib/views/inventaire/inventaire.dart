@@ -55,7 +55,7 @@ class _InventaireProPageState extends State<InventaireProPage> {
           produits = (body["produits"] as List)
               .map((json) => ProductModel.fromJson(json))
               .toList();
-              loading = false;
+              // loading = false;
         });
       }
     } on DioException catch (e) {
@@ -100,7 +100,7 @@ class _InventaireProPageState extends State<InventaireProPage> {
           ventesRecentes = (data["ventes"] as List)
               .map((e) => VenteModel.fromJson(e))
               .toList();
-              loading = false;
+              // loading = false;
         });
       }
     } on DioException catch (e) {
@@ -353,6 +353,7 @@ class _InventaireProPageState extends State<InventaireProPage> {
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -474,11 +475,13 @@ class _InventaireProPageState extends State<InventaireProPage> {
                   fontWeight: FontWeight.bold, fontSize: 18)),
           const Divider(),
           Expanded(
-            child: loading
+            child: 
+            loading
             ? Center(
                 child: LoadingAnimationWidget.staggeredDotsWave(
                     color: Colors.orange, size: 50))
-            : ventesRecentes.isEmpty
+            :
+             ventesRecentes.isEmpty
                 ? Center(
                     child: Text("Aucune vente",
                         style: GoogleFonts.poppins()))
@@ -518,11 +521,13 @@ class _InventaireProPageState extends State<InventaireProPage> {
         _buildFilterSection(),
         const SizedBox(height: 16),
         Expanded(
-          child:loading
+          child:
+          loading
             ? Center(
                 child: LoadingAnimationWidget.staggeredDotsWave(
                     color: Colors.orange, size: 50))
-            : filteredProduits.isEmpty
+            : 
+            filteredProduits.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -599,68 +604,67 @@ class _InventaireProPageState extends State<InventaireProPage> {
   }
 
   Widget _buildFilterSection() {
-    return Wrap(
-      spacing: 8,
-      children: [
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal:8.0),
-            child: DropdownButtonFormField<String>(
-              value: filtreCategorie,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.deepPurple.shade50,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              items: [
-                const DropdownMenuItem(
-                    value: "Tout", child: Text("Tout")),
-                ..._listCategories.map((c) => DropdownMenuItem(
-                      value: c.name,
-                      child: Text(c.name),
-                    ))
-              ],
-              onChanged: (value) {
-                setState(() {
-                  filtreCategorie = value!;
-                });
-              },
+   return Wrap(
+  spacing: 8,
+  runSpacing: 8,
+  children: [
+    SizedBox(
+      width: 300,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: DropdownButtonFormField<String>(
+          value: filtreCategorie,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.deepPurple.shade50,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
           ),
+          items: [
+            const DropdownMenuItem(value: "Tout", child: Text("Tout")),
+            ..._listCategories.map((c) => DropdownMenuItem(
+                  value: c.name,
+                  child: Text(c.name),
+                ))
+          ],
+          onChanged: (value) {
+            setState(() {
+              filtreCategorie = value!;
+            });
+          },
         ),
-        const SizedBox(height: 12),
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal:8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.deepPurple.shade50,
-                prefixIcon: const Icon(Icons.search),
-                hintText: "Rechercher un produit",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
+      ),
+    ),
+    SizedBox(
+      width: 300,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.deepPurple.shade50,
+            prefixIcon: const Icon(Icons.search),
+            hintText: "Rechercher un produit",
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
             ),
           ),
+          onChanged: (_) => setState(() {}),
         ),
-        IconButton(
-          tooltip: "Exporter en PDF",
-          onPressed:()=> _exportInventairePdf(),
-          icon: const Icon(Icons.print,
-              size: 28, color: Colors.deepOrange),
-        )
-      ],
-    );
+      ),
+    ),
+    IconButton(
+      tooltip: "Exporter en PDF",
+      onPressed: () => _exportInventairePdf(),
+      icon: const Icon(Icons.print, size: 28, color: Colors.deepOrange),
+    )
+  ],
+);
+
   }
 
   Future<void> _exportInventairePdf() async {
