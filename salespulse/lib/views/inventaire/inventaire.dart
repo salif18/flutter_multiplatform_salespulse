@@ -55,7 +55,7 @@ class _InventaireProPageState extends State<InventaireProPage> {
           produits = (body["produits"] as List)
               .map((json) => ProductModel.fromJson(json))
               .toList();
-              // loading = false;
+              loading = false;
         });
       }
     } on DioException catch (e) {
@@ -100,7 +100,7 @@ class _InventaireProPageState extends State<InventaireProPage> {
           ventesRecentes = (data["ventes"] as List)
               .map((e) => VenteModel.fromJson(e))
               .toList();
-              // loading = false;
+              loading = false;
         });
       }
     } on DioException catch (e) {
