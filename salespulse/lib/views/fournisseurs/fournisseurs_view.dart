@@ -163,7 +163,7 @@ class _FournisseurViewState extends State<FournisseurView> {
 
         if (res.statusCode == 201) {
           // ignore: use_build_context_synchronously
-          api.showSnackBarSuccessPersonalized(context, res.data["message"]);
+          // api.showSnackBarSuccessPersonalized(context, res.data["message"]);
           _getfournisseurs();
         } else {
           // ignore: use_build_context_synchronously

@@ -57,8 +57,8 @@ class _RoutesState extends State<Routes> {
     }
     
     final allowedIndexes = [
-      1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13,
-      if (role == "admin") ...[0, 7, 10, 14, 15]
+       2, 3, 4, 5, 6,7, 9,10, 11, 12, 13,14,
+      if (role == "admin") ...[0, 1, 8, 15]
     ];
     
     final firstAllowedIndex = allowedIndexes.first;
@@ -582,8 +582,8 @@ class _RoutesState extends State<Routes> {
     ];
 
     final allowedIndexes = [
-       2, 3,4, 5, 6, 7,8, 9,10, 11, 12, 13,
-      if (role == "admin") ...[0, 1, 14, 15]
+       2, 3,4, 5, 6, 7, 9,10, 11, 12, 13,14,
+      if (role == "admin") ...[0, 1,8, 15]
     ];
 
     if (!allowedIndexes.contains(_currentIndex)) {

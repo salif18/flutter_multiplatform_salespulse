@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:salespulse/providers/auth_provider.dart';
@@ -39,46 +38,49 @@ class _UpdatePasswordState extends State<UpdatePassword> {
   }
 
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-    
-    try {
-      final provider = Provider.of<AuthProvider>(context, listen: false);
-      final response = await _authService.postUpdatePassword({
-        "current_password": _currentPasswordController.text.trim(),
-        "new_password": _newPasswordController.text.trim(),
-        "confirm_password": _confirmPasswordController.text.trim()
-      }, provider.token);
+  setState(() => _isLoading = true);
 
+  try {
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    final response = await _authService.postUpdatePassword({
+      "current_password": _currentPasswordController.text.trim(),
+      "new_password": _newPasswordController.text.trim(),
+      "confirm_password": _confirmPasswordController.text.trim()
+    }, provider.token);
+
+    if (!mounted) return;
+
+    final decodedData = json.decode(response.body);
+
+    if (response.statusCode == 200) {
       if (!mounted) return;
-
-      final decodedData = json.decode(response.body);
-      if (response.statusCode == 200) {
-        _authService.showSnackBarSuccessPersonalized(
-          context, 
-          decodedData['message'].toString()
-        );
-        Navigator.pop(context);
-      } else {
-        _authService.showSnackBarErrorPersonalized(
-          context, 
-          decodedData["message"].toString()
-        );
-      }
-    } catch (err) {
-      if (mounted) {
-        _authService.showSnackBarErrorPersonalized(
-          context,
-          "Erreur lors de la mise à jour: ${err.toString()}"
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      _authService.showSnackBarSuccessPersonalized(
+        context,
+        decodedData['message']?.toString() ?? "Mot de passe mis à jour avec succès."
+      );
+      Navigator.pop(context);
+    } else {
+      if (!mounted) return;
+      _authService.showSnackBarErrorPersonalized(
+        context,
+        decodedData["message"]?.toString() ?? "Erreur lors de la mise à jour."
+      );
+    }
+  } catch (err) {
+    if (!mounted) return;
+    _authService.showSnackBarErrorPersonalized(
+      context,
+      "Erreur lors de la mise à jour: ${err.toString()}"
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -64,9 +64,9 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
 
     try {
       final res = await _clientApi.getClients(token);
-
+      if (!context.mounted) return;
       if (res.statusCode == 200) {
-        if (!mounted) return;
+       
         setState(() {
           clients = (res.data["clients"] as List)
               .map((e) => ClientModel.fromJson(e))
@@ -74,13 +74,13 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
         });
       }
     } on DioException catch (e) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       handleDioError(e);
     } on TimeoutException {
-      if (!mounted) return;
+      if (!context.mounted) return;
       showSnackBar("Le serveur ne répond pas. Veuillez réessayer plus tard.");
     } catch (e) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       showSnackBar("Erreur: ${e.toString()}");
       debugPrint(e.toString());
     }
@@ -648,7 +648,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                   ),
                    if (vente.monnaie > 0)
                   Text(
-                    "Reste: ${vente.monnaie} Fcfa",
+                    "Monnaie: ${vente.monnaie} Fcfa",
                     style: GoogleFonts.roboto(
                       fontSize: 14,
                       color: Colors.red,
@@ -1633,89 +1633,74 @@ Future<void> generateFacturePdf(VenteModel vente) async {
   }
 
   void _ouvrirDialogReglement(
-      BuildContext context, VenteModel vente, String type) {
-    final montantController = TextEditingController();
+    BuildContext context, VenteModel vente, String type) {
+  final montantController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(type == "règlement" ? "Règlement" : "Remboursement"),
-        content: TextField(
-          controller: montantController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-              labelText: "Montant",
-              labelStyle:
-                  GoogleFonts.roboto(fontSize: 14, color: Colors.black)),
-        ),
-        actions: [
-          TextButton(
-            child: const Text("Annuler"),
-            onPressed: () => Navigator.pop(context),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange.shade700),
-            child: Text(
-              "Valider",
-              style: GoogleFonts.roboto(fontSize: 14, color: Colors.white),
-            ),
-            onPressed: () async {
-              final montant = int.tryParse(montantController.text) ?? 0;
-              if (montant <= 0) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Montant invalide ou supérieur au dû")));
-                return;
-              }
-
-              final token =
-                  Provider.of<AuthProvider>(context, listen: false).token;
-              final userId =
-                  Provider.of<AuthProvider>(context, listen: false).userId;
-              final userName =
-                  Provider.of<AuthProvider>(context, listen: false).userName;
-              final adminId =
-                  Provider.of<AuthProvider>(context, listen: false).adminId;
-              final reglement = {
-                "venteId": vente.id,
-                "userId": userId,
-                "adminId": adminId,
-                "clientId": vente.clientId,
-                "nom": vente.clientNom,
-                "montant": montant,
-                "type": type,
-                "mode": vente.typePaiement,
-                "operateur": userName,
-                "date": DateTime.now().toIso8601String(),
-              };
-
-              final res =
-                  await ServicesReglements().postReglements(reglement, token);
-              if (res.statusCode == 201) {
-                if (!context.mounted) return; // vérifie que le widget est encore dans l’arbre
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    backgroundColor: Colors.green,
-                    content: Text(
-                      "Règlement effectué",
-                      style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    )));
-               if (!context.mounted) return; // vérifie que le widget est encore dans l’arbre
-                fetchVentes();
-              } else {
-                if (!mounted) return; // vérifie que le widget est encore dans l’arbre
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Erreur lors du règlement")));
-              }
-            },
-          ),
-        ],
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(type == "règlement" ? "Règlement" : "Remboursement"),
+      content: TextField(
+        controller: montantController,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+            labelText: "Montant",
+            labelStyle: GoogleFonts.roboto(fontSize: 14, color: Colors.black)),
       ),
-    );
-  }
+      actions: [
+        TextButton(
+          child: const Text("Annuler"),
+          onPressed: () => Navigator.pop(dialogContext),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange.shade700),
+          child: Text(
+            "Valider",
+            style: GoogleFonts.roboto(fontSize: 14, color: Colors.white),
+          ),
+          onPressed: () async {
+            final montant = int.tryParse(montantController.text) ?? 0;
+            if (montant <= 0) {
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  const SnackBar(
+                      content: Text("Montant invalide ou supérieur au dû")));
+              return;
+            }
+
+            final token = Provider.of<AuthProvider>(context, listen: false).token;
+            final userId = Provider.of<AuthProvider>(context, listen: false).userId;
+            final userName = Provider.of<AuthProvider>(context, listen: false).userName;
+            final adminId = Provider.of<AuthProvider>(context, listen: false).adminId;
+
+            final reglement = {
+              "venteId": vente.id,
+              "userId": userId,
+              "adminId": adminId,
+              "clientId": vente.clientId,
+              "nom": vente.clientNom,
+              "montant": montant,
+              "type": type,
+              "mode": vente.typePaiement,
+              "operateur": userName,
+              "date": DateTime.now().toIso8601String(),
+            };
+
+            final res = await ServicesReglements().postReglements(reglement, token);
+
+            if (res.statusCode == 201) {
+              Navigator.pop(dialogContext);
+              fetchVentes();
+            } else {
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  const SnackBar(content: Text("Erreur lors du règlement")));
+            }
+          },
+        ),
+      ],
+    ),
+  );
+}
 
   int _calculerSousTotal(ProductItemModel prod) {
   int prixUnitaire = prod.prixUnitaire;

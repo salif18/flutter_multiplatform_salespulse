@@ -119,37 +119,4 @@ verifierAbonnement(BuildContext context, String token) async {
     debugPrint(e.toString());
   }
 }
-
-//message en cas de succès!
-  void showSnackBarSuccessPersonalized(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message,
-          style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w400)),
-      backgroundColor: const Color.fromARGB(255, 255, 157, 11),
-      duration: const Duration(seconds: 5),
-      action: SnackBarAction(
-        label: "",
-        onPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
-      ),
-    ));
-  }
-
-  //message en cas d'erreur!
-  void showSnackBarErrorPersonalized(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message,
-          style: GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.w400)),
-      backgroundColor: const Color.fromARGB(255, 32, 19, 54),
-      duration: const Duration(seconds: 5),
-      action: SnackBarAction(
-        label: "",
-        onPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
-      ),
-    ));
-  }
-
 }

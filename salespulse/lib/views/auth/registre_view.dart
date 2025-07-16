@@ -43,55 +43,57 @@ class _RegistreViewState extends State<RegistreView> {
   }
 
   Future<void> _handleRegistration(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-    
-    try {
-      final data = {
-        "name": _nameController.text.trim(),
-        "boutique_name": _companyController.text.trim(),
-        "numero": _phoneController.text.trim(),
-        "email": _emailController.text.trim(),
-        "password": _passwordController.text.trim()
-      };
+  setState(() => _isLoading = true);
 
-      final response = await _authService.postRegistreUser(data);
-      final body = json.decode(response.body);
+  try {
+    final data = {
+      "name": _nameController.text.trim(),
+      "boutique_name": _companyController.text.trim(),
+      "numero": _phoneController.text.trim(),
+      "email": _emailController.text.trim(),
+      "password": _passwordController.text.trim(),
+    };
 
-      if (response.statusCode == 201) {
-        final provider = Provider.of<AuthProvider>(context, listen: false);
-        provider.loginButton(
-          body['token'], 
-          body["userId"],  
-          body["adminId"], 
-          body["role"],
-          body["userName"],          
-          body["userNumber"],
-          body["entreprise"], 
-        );
-        
-        if (mounted) {
-          Navigator.pushReplacement(
-            context, 
-            MaterialPageRoute(builder: (_) => const Routes())
-          );
-        }
-      } else {
-        if (mounted) {
-          _authService.showSnackBarErrorPersonalized(context, body["message"]);
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        _authService.showSnackBarErrorPersonalized(context, "Erreur: ${e.toString()}");
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    final response = await _authService.postRegistreUser(data);
+    final body = json.decode(response.body);
+
+    if (response.statusCode == 201) {
+      final provider = Provider.of<AuthProvider>(context, listen: false);
+
+      // Enregistrement de l'utilisateur dans le provider
+      await provider.loginButton(
+        body['token'],
+        body["userId"],
+        body["adminId"],
+        body["role"],
+        body["userName"],
+        body["userNumber"],
+        body["entreprise"],
+      );
+
+      if (!context.mounted) return;
+
+      // Redirection vers l'accueil
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Routes()),
+      );
+    } else {
+      if (!context.mounted) return;
+      _authService.showSnackBarErrorPersonalized(context, body["message"] ?? "Erreur d'enregistrement.");
+    }
+  } catch (e) {
+    if (!context.mounted) return;
+    _authService.showSnackBarErrorPersonalized(context, "Erreur: ${e.toString()}");
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

@@ -30,37 +30,39 @@ class _ResetTokenState extends State<ResetToken> {
   }
 
   Future<void> _submitForm(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-    
-    try {
-      final response = await _authService.postResetPassword({
-        "numero": _phoneController.text.trim(),
-        "email": _emailController.text.trim(),
-      });
+  setState(() => _isLoading = true);
 
+  try {
+    final response = await _authService.postResetPassword({
+      "numero": _phoneController.text.trim(),
+      "email": _emailController.text.trim(),
+    });
+
+    if (!mounted) return;
+
+    final body = json.decode(response.body);
+
+    if (response.statusCode == 200) {
       if (!mounted) return;
-
-      final body = json.decode(response.body);
-      if (response.statusCode == 200) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const ValidationReset()),
-        );
-      } else {
-        _authService.showSnackBarErrorPersonalized(context, body["message"]);
-      }
-    } catch (e) {
-      if (mounted) {
-        _authService.showSnackBarErrorPersonalized(context, e.toString());
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ValidationReset()),
+      );
+    } else {
+      if (!mounted) return;
+      _authService.showSnackBarErrorPersonalized(context, body["message"] ?? "Erreur lors de la réinitialisation.");
+    }
+  } catch (e) {
+    if (!mounted) return;
+    _authService.showSnackBarErrorPersonalized(context, "Erreur : ${e.toString()}");
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

@@ -42,71 +42,78 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Future<void> _handleLogin(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-    
-    try {
-      final data = {
-        "contacts": _emailController.text.trim(),
-        "password": _passwordController.text.trim()
-      };
+  setState(() => _isLoading = true);
 
-      final response = await _authService.postLoginUser(data);
-      final body = jsonDecode(response.body);
+  try {
+    final data = {
+      "contacts": _emailController.text.trim(),
+      "password": _passwordController.text.trim(),
+    };
 
-      if (response.statusCode == 200) {
-        
-        final provider = Provider.of<AuthProvider>(context, listen: false);
-        provider.loginButton(
-          body['token'], 
-          body["userId"],  
-          body["adminId"], 
-          body["role"],
-          body["userName"],          
-          body["userNumber"],
-          body["entreprise"],     
-        );
-        await _loadProfil();
-        if (mounted) {
-          Navigator.pushReplacement(
-            context, 
-            MaterialPageRoute(builder: (_) => const Routes())
-          );
-        }
-      } else {
-        if (mounted) {
-          _authService.showSnackBarErrorPersonalized(context, body["message"]);
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        _authService.showSnackBarErrorPersonalized(context, e.toString());
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    final response = await _authService.postLoginUser(data);
+    final body = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      final provider = Provider.of<AuthProvider>(context, listen: false);
+
+      // Sauvegarde des infos de l'utilisateur
+      await provider.loginButton(
+        body['token'],
+        body["userId"],
+        body["adminId"],
+        body["role"],
+        body["userName"],
+        body["userNumber"],
+        body["entreprise"],
+      );
+
+      // Charger le profil
+      await _loadProfil(provider);
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const Routes()),
+      );
+    } else {
+      if (!context.mounted) return;
+      _authService.showSnackBarErrorPersonalized(context, body["message"]);
+    }
+  } catch (e) {
+    if (!context.mounted) return;
+    _authService.showSnackBarErrorPersonalized(context, "Erreur: $e");
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
 
-  Future<void> _loadProfil() async {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
-    final provider = Provider.of<AuthProvider>(context, listen: false);
-    try {
-      final res = await api.getProfils(token);
-      if (res.statusCode == 200) {
-        if (!mounted) return;
-        setState(() {
-          profil = ProfilModel.fromJson(res.data["profils"]);
-        });
-          provider.saveProfilData(profil);
-         print(profil);
-      }
-    } catch (e) {
-      debugPrint("Erreur chargement profil: $e");
+Future<void> _loadProfil(AuthProvider provider) async {
+  final token = provider.token;
+
+  try {
+    final res = await api.getProfils(token);
+
+    if (res.statusCode == 200 && res.data["profils"] != null) {
+      final profilData = ProfilModel.fromJson(res.data["profils"]);
+      if (!mounted) return;
+
+      setState(() {
+        profil = profilData;
+      });
+
+      await provider.saveProfilData(profilData);
+      debugPrint("✅ Profil chargé: ${profilData.image}");
+    } else {
+      debugPrint("❌ Données profil invalides ou absentes");
     }
+  } catch (e) {
+    debugPrint("❌ Erreur chargement profil: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {

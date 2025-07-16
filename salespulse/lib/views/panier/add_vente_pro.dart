@@ -246,7 +246,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     });
   }
 
-  Future<void> _validerVente() async {
+  Future<void> _validerVente(BuildContext context) async {
     if (panier.isEmpty) {
       _showErrorSnackBar("Votre panier est vide");
       return;
@@ -259,12 +259,12 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     if (venteMap == null) return; // Ne pas continuer si données invalides
     final response = await venteApi.postOrders(
         venteMap, Provider.of<AuthProvider>(context, listen: false).token);
-
+    if (!context.mounted) return; // vérifie que le widget est encore dans l’arbre
     if (response.statusCode == 201) {
-      if (!mounted) return; // vérifie que le widget est encore dans l’arbre
-      _handleSuccessfulSale(response.data['vente']);
+     
+      _handleSuccessfulSale(context,response.data['vente']);
     } else {
-      if (!mounted) return; // vérifie que le widget est encore dans l’arbre
+      if (!context.mounted) return; // vérifie que le widget est encore dans l’arbre
       _showErrorSnackBar("Échec de l'enregistrement de la vente");
     }
   }
@@ -504,14 +504,8 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
     };
   }
 
-  void _handleSuccessfulSale(dynamic venteData) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Vente enregistrée avec succès"),
-        backgroundColor: Colors.green,
-      ),
-    );
-
+  void _handleSuccessfulSale(BuildContext context,dynamic venteData) {
+   
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -1203,7 +1197,7 @@ class _AddVenteScreenState extends State<AddVenteScreen> {
 
         // Bouton Valider
         ElevatedButton.icon(
-          onPressed: _validerVente,
+          onPressed:()=> _validerVente(context),
           icon: const Icon(
             Icons.check,
             size: 28,

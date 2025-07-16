@@ -34,39 +34,49 @@ class _ValidationResetState extends State<ValidationReset> {
   }
 
   Future<void> _submitForm(BuildContext context) async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
-    
-    try {
-      final response = await _authService.postValidatePassword({
-        "reset_token": _resetTokenValue,
-        "new_password": _newPasswordController.text.trim(),
-        "confirm_password": _confirmPasswordController.text.trim()
-      });
+  setState(() => _isLoading = true);
 
-      if (!mounted) return;
+  try {
+    final response = await _authService.postValidatePassword({
+      "reset_token": _resetTokenValue,
+      "new_password": _newPasswordController.text.trim(),
+      "confirm_password": _confirmPasswordController.text.trim(),
+    });
 
-      final body = json.decode(response.body);
-      if (response.statusCode == 200) {
-        _authService.showSnackBarSuccessPersonalized(context, body["message"]);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginView()),
-        );
-      } else {
-        _authService.showSnackBarErrorPersonalized(context, body["message"]);
-      }
-    } catch (e) {
-      if (mounted) {
-        _authService.showSnackBarErrorPersonalized(context, "Erreur: ${e.toString()}");
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    if (!mounted) return;
+
+    final body = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      _authService.showSnackBarSuccessPersonalized(
+        context,
+        body["message"] ?? "Mot de passe réinitialisé avec succès.",
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginView()),
+      );
+    } else {
+      _authService.showSnackBarErrorPersonalized(
+        context,
+        body["message"] ?? "Erreur lors de la réinitialisation du mot de passe.",
+      );
+    }
+  } catch (e) {
+    if (!mounted) return;
+    _authService.showSnackBarErrorPersonalized(
+      context,
+      "Erreur: ${e.toString()}",
+    );
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

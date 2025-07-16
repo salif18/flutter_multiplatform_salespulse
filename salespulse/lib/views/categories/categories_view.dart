@@ -324,11 +324,11 @@ class _CategoriesViewState extends State<CategoriesView> {
                                 alignment: Alignment.centerRight,
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 20),
-                                child: const Icon(Icons.delete_forever,
-                                    color: Colors.white),
+                                child: role == "admin" ?const Icon(Icons.delete_forever,
+                                    color: Colors.white):null,
                               ),
                               confirmDismiss: (direction) async =>
-                                  await showRemoveCategorie(context),
+                               role == "admin" ?   await showRemoveCategorie(context) :null,
                               onDismissed: (_) =>
                                   _removeCategories(categorie.id),
                               child: Container(

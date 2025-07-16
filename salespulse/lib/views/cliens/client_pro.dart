@@ -198,8 +198,8 @@ class _ClientsViewState extends State<ClientsView> {
         Navigator.pop(context); // Ferme le dialog
 
         if (res.statusCode == 201) {
-          if (!context.mounted) return;
-          api.showSnackBarSuccessPersonalized(context, res.data["message"]);
+          // if (!context.mounted) return;
+          // api.showSnackBarSuccessPersonalized(context, res.data["message"]);
              if (!context.mounted) return;
           _getClients();
           

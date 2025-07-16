@@ -93,100 +93,109 @@ class _StatistiquesProduitsPageState extends State<StatistiquesProduitsPage> {
   }
 
   Future<void> fetchVentes() async {
-    try {
-      final token = Provider.of<AuthProvider>(context, listen: false).token;
-      final response = await api.getAllVentes(token);
+  try {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    final response = await api.getAllVentes(token);
 
-      if (response.statusCode == 200) {
-        List ventesJson = response.data["ventes"];
-        List<VenteModel> ventes =
-            ventesJson.map((json) => VenteModel.fromJson(json)).toList();
+    if (!mounted) return;
 
-        Map<String, ProduitTendance> mapProduits = {};
-        for (var vente in ventes) {
-          for (var produit in vente.produits) {
-            if (mapProduits.containsKey(produit.productId)) {
-              final ancien = mapProduits[produit.productId]!;
-              mapProduits[produit.productId] = ProduitTendance(
-                productId: produit.productId,
-                nom: produit.nom,
-                image: produit.image,
-                quantiteTotale: ancien.quantiteTotale + produit.quantite,
-              );
-            } else {
-              mapProduits[produit.productId] = ProduitTendance(
-                productId: produit.productId,
-                nom: produit.nom,
-                image: produit.image,
-                quantiteTotale: produit.quantite,
-              );
-            }
+    if (response.statusCode == 200) {
+      List ventesJson = response.data["ventes"];
+      List<VenteModel> ventes =
+          ventesJson.map((json) => VenteModel.fromJson(json)).toList();
+
+      Map<String, ProduitTendance> mapProduits = {};
+
+      for (var vente in ventes) {
+        for (var produit in vente.produits) {
+          if (mapProduits.containsKey(produit.productId)) {
+            final ancien = mapProduits[produit.productId]!;
+            mapProduits[produit.productId] = ProduitTendance(
+              productId: produit.productId,
+              nom: produit.nom,
+              image: produit.image,
+              quantiteTotale: ancien.quantiteTotale + produit.quantite,
+            );
+          } else {
+            mapProduits[produit.productId] = ProduitTendance(
+              productId: produit.productId,
+              nom: produit.nom,
+              image: produit.image,
+              quantiteTotale: produit.quantite,
+            );
           }
         }
-
-        List<ProduitTendance> produitsTrie = mapProduits.values.toList();
-        produitsTrie.sort((a, b) => b.quantiteTotale.compareTo(a.quantiteTotale));
-
-        setState(() {
-          produitsTendance = produitsTrie;
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage = "Erreur lors du chargement des ventes";
-          isLoading = false;
-        });
       }
-    } on DioException catch (e) {
-      if (e.response != null && e.response?.statusCode == 403) {
-        final errorMessage = e.response?.data['error'] ?? '';
 
-        if (errorMessage.toString().contains("abonnement")) {
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: const Text("Abonnement expiré"),
-              content: const Text(
-                  "Votre abonnement a expiré. Veuillez le renouveler."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const AbonnementScreen()),
-                    );
-                  },
-                  child: const Text("OK"),
-                ),
-              ],
+      final produitsTrie = mapProduits.values.toList()
+        ..sort((a, b) => b.quantiteTotale.compareTo(a.quantiteTotale));
+
+      if (!mounted) return;
+      setState(() {
+        produitsTendance = produitsTrie;
+        isLoading = false;
+      });
+    } else {
+      if (!mounted) return;
+      setState(() {
+        errorMessage = "Erreur lors du chargement des ventes";
+        isLoading = false;
+      });
+    }
+  } on DioException catch (e) {
+    if (!mounted) return;
+
+    final isAbonnementError = e.response?.data['error']?.toString().contains("abonnement") ?? false;
+
+    if (e.response?.statusCode == 403 && isAbonnementError) {
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Abonnement expiré"),
+          content: const Text("Votre abonnement a expiré. Veuillez le renouveler."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AbonnementScreen()),
+                );
+              },
+              child: const Text("OK"),
             ),
-          );
-          return;
-        }
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Problème de connexion : Vérifiez votre Internet.",
-            style: GoogleFonts.poppins(fontSize: 14),
-          ),
+          ],
         ),
       );
-    } on TimeoutException {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-        "Le serveur ne répond pas. Veuillez réessayer plus tard.",
-        style: GoogleFonts.poppins(fontSize: 14),
-      )));
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Erreur: ${e.toString()}")));
-      debugPrint(e.toString());
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Problème de connexion : Vérifiez votre Internet.",
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ),
+    );
+  } on TimeoutException {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Le serveur ne répond pas. Veuillez réessayer plus tard.",
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text("Erreur: ${e.toString()}")));
+    debugPrint(e.toString());
   }
+}
+
 
   Future<void> _handleLogout(BuildContext context) async {
     final authProvider = context.read<AuthProvider>();

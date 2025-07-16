@@ -74,209 +74,213 @@ bool loading = true;
   }
 
   Future<void> _fetchStats() async {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
+  final token = Provider.of<AuthProvider>(context, listen: false).token;
 
+  try {
     final res = await api.getStatsGenerales(selectedMonth, token);
-    try {
-      if (res.statusCode == 200) {
-        final data = res.data;
-        if (!mounted) return;
-        setState(() {
-          totalVentes = data['totalVentesBrutes'] ?? 0;
-          montantEncaisse = data['montantEncaisse'] ?? 0;
-          resteTotal = data['resteTotal'] ?? 0;
-          montantRembourse = data["montantRembourse"] ?? 0;
-          nombreVentes = data['nombreVentes'] ?? 0;
-          nombreClients = data['nombreClients'] ?? 0;
-          produitsEnStock = data['produitsEnStock'] ?? 0;
-          totalPiecesEnStock = data["totalPiecesEnStock"] ?? "";
-          produitsRupture = data['produitsRupture'] ?? 0;
-          totalDepenses = data['totalDepenses'] ?? 0;
-          coutAchatTotal = data['coutAchatTotal'] ?? 0;
-          etatCaisse = data["etatCaisse"] ?? 0;
-          benefice = data['benefice'] ?? 0;
-          coutAchatPertes = data["coutAchatPertes"] ?? 0;
-          quantitePertes = data["quantitePertes"] ?? 0;
-          totalRemises = data["totalRemises"] ?? 0;
-          totalTVACollectee = data["totalTVACollectee"] ?? 0;
-          statsParMois = data['statsParMois'] ?? {};
-          margeMoyennePromo = (data['margeMoyennePromo'] ?? 0).toDouble();
-          nbPromoActifs = data['nbPromoActifs'] ?? 0;
-          impactPromoVentes = data['impactPromoVentes'] ?? {};
 
-          loading = false;
-        });
-      }
-    } on DioException catch (e) {
-      if (!mounted) return;
-      if (e.response != null && e.response?.statusCode == 403) {
-        final errorMessage = e.response?.data['error'] ?? '';
+    if (!mounted) return;
 
-        if (errorMessage.toString().contains("abonnement")) {
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: const Text("Abonnement expiré"),
-              content: const Text(
-                  "Votre abonnement a expiré. Veuillez le renouveler."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const AbonnementScreen()),
-                    );
-                  },
-                  child: const Text("OK"),
-                ),
-              ],
+    if (res.statusCode == 200) {
+      final data = res.data;
+      setState(() {
+        totalVentes = data['totalVentesBrutes'] ?? 0;
+        montantEncaisse = data['montantEncaisse'] ?? 0;
+        resteTotal = data['resteTotal'] ?? 0;
+        montantRembourse = data["montantRembourse"] ?? 0;
+        nombreVentes = data['nombreVentes'] ?? 0;
+        nombreClients = data['nombreClients'] ?? 0;
+        produitsEnStock = data['produitsEnStock'] ?? 0;
+        totalPiecesEnStock = data["totalPiecesEnStock"] ?? "";
+        produitsRupture = data['produitsRupture'] ?? 0;
+        totalDepenses = data['totalDepenses'] ?? 0;
+        coutAchatTotal = data['coutAchatTotal'] ?? 0;
+        etatCaisse = data["etatCaisse"] ?? 0;
+        benefice = data['benefice'] ?? 0;
+        coutAchatPertes = data["coutAchatPertes"] ?? 0;
+        quantitePertes = data["quantitePertes"] ?? 0;
+        totalRemises = data["totalRemises"] ?? 0;
+        totalTVACollectee = data["totalTVACollectee"] ?? 0;
+        statsParMois = data['statsParMois'] ?? {};
+        margeMoyennePromo = (data['margeMoyennePromo'] ?? 0).toDouble();
+        nbPromoActifs = data['nbPromoActifs'] ?? 0;
+        impactPromoVentes = data['impactPromoVentes'] ?? {};
+        loading = false;
+      });
+    }
+  } on DioException catch (e) {
+    if (!mounted) return;
+
+    final isAbonnementError = e.response?.data['error']?.toString().contains("abonnement") ?? false;
+
+    if (e.response?.statusCode == 403 && isAbonnementError) {
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Abonnement expiré"),
+          content: const Text("Votre abonnement a expiré. Veuillez le renouveler."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AbonnementScreen()),
+                );
+              },
+              child: const Text("OK"),
             ),
-          );
-          return;
-        }
-      }
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Problème de connexion : Vérifiez votre Internet.",
-            style: GoogleFonts.poppins(fontSize: 14),
-          ),
+          ],
         ),
       );
-    } on TimeoutException {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-        "Le serveur ne répond pas. Veuillez réessayer plus tard.",
-        style: GoogleFonts.poppins(fontSize: 14),
-      )));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Erreur: ${e.toString()}")));
-      debugPrint(e.toString());
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Problème de connexion : Vérifiez votre Internet.",
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ),
+    );
+  } on TimeoutException {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Le serveur ne répond pas. Veuillez réessayer plus tard.",
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Erreur: ${e.toString()}")),
+    );
+    debugPrint(e.toString());
   }
+}
 
-  Future<void> _fetchStatsCharts() async {
-    final token = Provider.of<AuthProvider>(context, listen: false).token;
+Future<void> _fetchStatsCharts() async {
+  final token = Provider.of<AuthProvider>(context, listen: false).token;
 
-    try {
-      final resJour = await api.getVentesDuJour(token);
-      final resAnnee = await api.getVentesAnnee(token);
-      final resHebdo = await api.getVentesHebdomadaires(token);
+  try {
+    final resJour = await api.getVentesDuJour(token);
+    final resAnnee = await api.getVentesAnnee(token);
+    final resHebdo = await api.getVentesHebdomadaires(token);
 
-      if (resJour.statusCode == 200 &&
-          resAnnee.statusCode == 200 &&
-          resHebdo.statusCode == 200) {
-        final rawJour = resJour.data;
-        List<Map<String, dynamic>> mergedJour = [];
-        if (rawJour is List && rawJour.isNotEmpty) {
-          final firstItem = rawJour[0];
-          final List totalParHeure = firstItem['totalParHeure'] ?? [];
-          final List quantiteParHeure = firstItem['quantiteParHeure'] ?? [];
+    if (!mounted) return;
 
-          final Map<int, int> quantiteMap = {
-            for (var q in quantiteParHeure)
-              (q['_id'] ?? 0) as int: (q['quantite'] ?? 0) as int
+    if (resJour.statusCode == 200 &&
+        resAnnee.statusCode == 200 &&
+        resHebdo.statusCode == 200) {
+      final rawJour = resJour.data;
+      List<Map<String, dynamic>> mergedJour = [];
+      if (rawJour is List && rawJour.isNotEmpty) {
+        final firstItem = rawJour[0];
+        final List totalParHeure = firstItem['totalParHeure'] ?? [];
+        final List quantiteParHeure = firstItem['quantiteParHeure'] ?? [];
+
+        final Map<int, int> quantiteMap = {
+          for (var q in quantiteParHeure)
+            (q['_id'] ?? 0) as int: (q['quantite'] ?? 0) as int
+        };
+
+        mergedJour = totalParHeure.map<Map<String, dynamic>>((item) {
+          final heure = (item['_id'] ?? 0) as int;
+          return {
+            '_id': heure,
+            'total': item['total'] ?? 0,
+            'quantite': quantiteMap[heure] ?? 0,
           };
-
-          mergedJour = totalParHeure.map<Map<String, dynamic>>((item) {
-            final heure = (item['_id'] ?? 0) as int;
-            return {
-              '_id': heure,
-              'total': item['total'] ?? 0,
-              'quantite': quantiteMap[heure] ?? 0,
-            };
-          }).toList();
-        }
-
-        final rawAnnee = resAnnee.data;
-        List<Map<String, dynamic>> mergedAnnee = [];
-        if (rawAnnee is List && rawAnnee.isNotEmpty) {
-          final firstItem = rawAnnee[0];
-          final List totalParMois = firstItem['totalParMois'] ?? [];
-          final List quantiteParMois = firstItem['quantiteParMois'] ?? [];
-
-          final Map<int, int> quantiteMapAnnee = {
-            for (var q in quantiteParMois)
-              (q['_id'] ?? 0) as int: (q['quantite'] ?? 0) as int
-          };
-
-          mergedAnnee = totalParMois.map<Map<String, dynamic>>((item) {
-            final mois = (item['_id'] ?? 0) as int;
-            return {
-              '_id': mois,
-              'total': item['total'] ?? 0,
-              'quantite': quantiteMapAnnee[mois] ?? 0,
-            };
-          }).toList();
-        }
-        if (!mounted) return;
-
-        setState(() {
-          ventesDuJour = mergedJour;
-          ventesAnnee = mergedAnnee;
-          ventesHebdo = List<Map<String, dynamic>>.from(resHebdo.data);
-          loading = false;
-        });
+        }).toList();
       }
-    } on DioException catch (e) {
-      if (!mounted) return;
-      if (e.response != null && e.response?.statusCode == 403) {
-        final errorMessage = e.response?.data['error'] ?? '';
 
-        if (errorMessage.toString().contains("abonnement")) {
-          showDialog(
-            context: context,
-            builder: (_) => AlertDialog(
-              title: const Text("Abonnement expiré"),
-              content: const Text(
-                  "Votre abonnement a expiré. Veuillez le renouveler."),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const AbonnementScreen()),
-                    );
-                  },
-                  child: const Text("OK"),
-                ),
-              ],
+      final rawAnnee = resAnnee.data;
+      List<Map<String, dynamic>> mergedAnnee = [];
+      if (rawAnnee is List && rawAnnee.isNotEmpty) {
+        final firstItem = rawAnnee[0];
+        final List totalParMois = firstItem['totalParMois'] ?? [];
+        final List quantiteParMois = firstItem['quantiteParMois'] ?? [];
+
+        final Map<int, int> quantiteMapAnnee = {
+          for (var q in quantiteParMois)
+            (q['_id'] ?? 0) as int: (q['quantite'] ?? 0) as int
+        };
+
+        mergedAnnee = totalParMois.map<Map<String, dynamic>>((item) {
+          final mois = (item['_id'] ?? 0) as int;
+          return {
+            '_id': mois,
+            'total': item['total'] ?? 0,
+            'quantite': quantiteMapAnnee[mois] ?? 0,
+          };
+        }).toList();
+      }
+
+      setState(() {
+        ventesDuJour = mergedJour;
+        ventesAnnee = mergedAnnee;
+        ventesHebdo = List<Map<String, dynamic>>.from(resHebdo.data);
+        loading = false;
+      });
+    }
+  } on DioException catch (e) {
+    if (!mounted) return;
+
+    final isAbonnementError = e.response?.data['error']?.toString().contains("abonnement") ?? false;
+
+    if (e.response?.statusCode == 403 && isAbonnementError) {
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Abonnement expiré"),
+          content: const Text("Votre abonnement a expiré. Veuillez le renouveler."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AbonnementScreen()),
+                );
+              },
+              child: const Text("OK"),
             ),
-          );
-          return;
-        }
-      }
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Problème de connexion : Vérifiez votre Internet.",
-            style: GoogleFonts.poppins(fontSize: 14),
-          ),
+          ],
         ),
       );
-    } on TimeoutException {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-        "Le serveur ne répond pas. Veuillez réessayer plus tard.",
-        style: GoogleFonts.poppins(fontSize: 14),
-      )));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Erreur: ${e.toString()}")));
-      debugPrint(e.toString());
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Problème de connexion : Vérifiez votre Internet.",
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ),
+    );
+  } on TimeoutException {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Le serveur ne répond pas. Veuillez réessayer plus tard.",
+          style: GoogleFonts.poppins(fontSize: 14),
+        ),
+      ),
+    );
+  } catch (e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Erreur: ${e.toString()}")),
+    );
+    debugPrint(e.toString());
   }
+}
 
   Widget _buildCard(String label, String value, IconData icon, Color color) {
     return Container(
