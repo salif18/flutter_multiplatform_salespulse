@@ -532,21 +532,19 @@ class RecuVenteScreen extends StatelessWidget {
                           pw.Text(currencyFormat.format(totalTVA)),
                         ],
                       ),
-
-                    // Remise Globale (si applicable)
-                    if (remiseGlobale > 0) ...[
-                      pw.SizedBox(height: 5),
-                      pw.Row(
-                        mainAxisSize: pw.MainAxisSize.min,
-                        children: [
-                          pw.Text("Remise Globale: "),
-                          pw.Text(
-                              "$remiseGlobale ${remiseGlobaleType == 'pourcent' ? '%' : 'FCFA'}",
-                              style:
-                                  const pw.TextStyle(color: PdfColors.green)),
-                        ],
-                      ),
-                    ],
+            
+                     // Total TTC
+                    pw.SizedBox(height: 5),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("Total TTC: ",
+                            style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold, fontSize: 14)),
+                        pw.Text(currencyFormat.format(totalHT + totalTVA),
+                            style: const pw.TextStyle(fontSize: 14)),
+                      ],
+                    ),
 
                     // Livraison (si applicable)
                     if ((data['livraison'] ?? 0) > 0) ...[
@@ -575,19 +573,21 @@ class RecuVenteScreen extends StatelessWidget {
                         ],
                       ),
                     ],
-
-                    // Total TTC
-                    pw.SizedBox(height: 5),
-                    pw.Row(
-                      mainAxisSize: pw.MainAxisSize.min,
-                      children: [
-                        pw.Text("Total TTC: ",
-                            style: pw.TextStyle(
-                                fontWeight: pw.FontWeight.bold, fontSize: 14)),
-                        pw.Text(currencyFormat.format(totalTTC),
-                            style: const pw.TextStyle(fontSize: 14)),
-                      ],
-                    ),
+  
+                     // Remise Globale (si applicable)
+                    if (remiseGlobale > 0) ...[
+                      pw.SizedBox(height: 5),
+                      pw.Row(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        children: [
+                          pw.Text("Remise Globale: "),
+                          pw.Text(
+                              "$remiseGlobale ${remiseGlobaleType == 'pourcent' ? '%' : 'FCFA'}",
+                              style:
+                                  const pw.TextStyle(color: PdfColors.green)),
+                        ],
+                      ),
+                    ],
 
                     // Montant Net à Payer
                     pw.SizedBox(height: 10),
