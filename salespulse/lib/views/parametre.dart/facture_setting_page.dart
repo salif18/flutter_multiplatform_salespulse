@@ -17,6 +17,7 @@ class _FactureSettingsPageState extends State<FactureSettingsPage> {
   final TextEditingController _prefixController = TextEditingController();
   final TextEditingController _footerController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  String _selectedAlignment = 'gauche'; // ➕ Alignement initial par défaut
 
   String? token;
   String? adminId;
@@ -37,6 +38,7 @@ class _FactureSettingsPageState extends State<FactureSettingsPage> {
       if (response.statusCode == 200) {
         _prefixController.text = response.data['facturePrefix'] ?? '';
         _footerController.text = response.data['factureFooter'] ?? '';
+        _selectedAlignment = response.data['footerAlignement'] ?? 'gauche';
       }
     } catch (e) {
       debugPrint("Erreur chargement paramètres: $e");
@@ -52,6 +54,7 @@ class _FactureSettingsPageState extends State<FactureSettingsPage> {
       "adminId": adminId,
       "prefix": _prefixController.text.trim(),
       "footer": _footerController.text.trim(),
+      "alignement":_selectedAlignment.trim()
     };
 
     try {
@@ -180,6 +183,36 @@ class _FactureSettingsPageState extends State<FactureSettingsPage> {
                                     color: Colors.grey[600],
                                   ),
                         ),
+                        const SizedBox(height: 30),
+                        _buildSectionHeader('Alignement du texte'),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedAlignment,
+                            decoration: const InputDecoration.collapsed(
+                                hintText: ''),
+                            items: const [
+                              DropdownMenuItem(
+                                  value: 'gauche', child: Text("Gauche")),
+                              DropdownMenuItem(
+                                  value: 'centre', child: Text("Centré")),
+                              DropdownMenuItem(
+                                  value: 'droite', child: Text("Droite")),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedAlignment = value!;
+                              });
+                            },
+                          ),
+                        ),
+              
                         const SizedBox(height: 40),
                         SizedBox(
                           width: double.infinity,

@@ -674,9 +674,18 @@ class RecuVenteScreen extends StatelessWidget {
                 ],
               ),
               pw.SizedBox(height: 10),
-              pw.Text(data["facture_footer"],
-                  style: pw.TextStyle(
-                      fontStyle: pw.FontStyle.italic, fontSize: 12)),
+               pw.Text(
+                data['facture_footer'] ?? "Merci pour votre confiance !",
+                style: pw.TextStyle(
+                  fontStyle: pw.FontStyle.italic,
+                  fontSize: 12,
+                ),
+                textAlign: data["footer_alignement"] == 'centre'
+                    ? pw.TextAlign.center
+                    : data["footer_alignement"] == 'droite'
+                        ? pw.TextAlign.right
+                        : pw.TextAlign.left,
+              ),
             ],
           );
         },

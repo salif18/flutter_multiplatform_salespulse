@@ -48,8 +48,9 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
 
   // Détection du type d'appareil
   bool get isMobile => MediaQuery.of(context).size.width < 600;
-  bool get isTablet => MediaQuery.of(context).size.width >= 600 && 
-                     MediaQuery.of(context).size.width < 1024;
+  bool get isTablet =>
+      MediaQuery.of(context).size.width >= 600 &&
+      MediaQuery.of(context).size.width < 1024;
   bool get isDesktop => MediaQuery.of(context).size.width >= 1024;
 
   @override
@@ -66,7 +67,6 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
       final res = await _clientApi.getClients(token);
       if (!context.mounted) return;
       if (res.statusCode == 200) {
-       
         setState(() {
           clients = (res.data["clients"] as List)
               .map((e) => ClientModel.fromJson(e))
@@ -132,7 +132,8 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
           context: context,
           builder: (_) => AlertDialog(
             title: const Text("Abonnement expiré"),
-            content: const Text("Votre abonnement a expiré. Veuillez le renouveler."),
+            content: const Text(
+                "Votre abonnement a expiré. Veuillez le renouveler."),
             actions: [
               TextButton(
                 onPressed: () {
@@ -167,9 +168,14 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
   void applyFilters() {
     setState(() {
       filteredVentes = ventes.where((vente) {
-        final matchSearch = vente.statut.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            (vente.clientNom?.toLowerCase().contains(searchQuery.toLowerCase()) ?? false);
-        final matchStatut = selectedStatut == null || vente.statut == selectedStatut;
+        final matchSearch =
+            vente.statut.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                (vente.clientNom
+                        ?.toLowerCase()
+                        .contains(searchQuery.toLowerCase()) ??
+                    false);
+        final matchStatut =
+            selectedStatut == null || vente.statut == selectedStatut;
         return matchSearch && matchStatut;
       }).toList();
     });
@@ -214,31 +220,33 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.blueGrey,
-         automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false,
         title: Text(
           "Historique des ventes",
           style: GoogleFonts.roboto(
             fontSize: isMobile ? 16 : 18,
-            fontWeight: FontWeight.bold, 
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
         actions: [
-          if (!isMobile) IconButton(
-            icon: const Icon(Icons.print, color: Colors.white),
-            onPressed: _generatePdf,
-          ),
-          if (!isMobile) IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: resetFilters,
-          ),
+          if (!isMobile)
+            IconButton(
+              icon: const Icon(Icons.print, color: Colors.white),
+              onPressed: _generatePdf,
+            ),
+          if (!isMobile)
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: resetFilters,
+            ),
         ],
       ),
       body: isLoading
-            ? Center(
-                child: LoadingAnimationWidget.staggeredDotsWave(
-                    color: Colors.orange, size: 50))
-            : errorMessage.isNotEmpty
+          ? Center(
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.orange, size: 50))
+          : errorMessage.isNotEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -280,9 +288,10 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                       ),
                     )
                   : _buildAdaptiveBody(),
-      floatingActionButton:  FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
-        onPressed: () => _generateRapportPdfPro(filteredVentes, dateDebut, dateFin),
+        onPressed: () =>
+            _generateRapportPdfPro(filteredVentes, dateDebut, dateFin),
         tooltip: "Générer le rapport PDF",
         child: const Icon(Icons.bar_chart_outlined, color: Colors.white),
       ),
@@ -295,7 +304,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
         // Zone de filtres
         _buildFilterSection(),
         const SizedBox(height: 8),
-        
+
         // Liste des ventes
         Expanded(
           child: isMobile ? _buildMobileList() : _buildDesktopTable(),
@@ -352,7 +361,8 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
               fillColor: Colors.grey[200],
               hintText: "Rechercher par client ou statut...",
               hintStyle: GoogleFonts.roboto(fontSize: 14),
-              prefixIcon: const Icon(Icons.search, size: 20, color: Colors.blueGrey),
+              prefixIcon:
+                  const Icon(Icons.search, size: 20, color: Colors.blueGrey),
               border: OutlineInputBorder(
                 borderSide: BorderSide.none,
                 borderRadius: BorderRadius.circular(20),
@@ -381,11 +391,12 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
               backgroundColor: Colors.green,
               minimumSize: const Size(0, 40),
             ),
-            icon: const Icon(Icons.calendar_today, size: 16, color: Colors.white),
+            icon:
+                const Icon(Icons.calendar_today, size: 16, color: Colors.white),
             label: Text(
-              dateDebut != null 
-                ? DateFormat('dd/MM/yyyy').format(dateDebut!)
-                : "Date début",
+              dateDebut != null
+                  ? DateFormat('dd/MM/yyyy').format(dateDebut!)
+                  : "Date début",
               style: GoogleFonts.roboto(fontSize: 14, color: Colors.white),
             ),
             onPressed: () async {
@@ -409,11 +420,12 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
               backgroundColor: Colors.blue,
               minimumSize: const Size(0, 40),
             ),
-            icon: const Icon(Icons.calendar_today, size: 16, color: Colors.white),
+            icon:
+                const Icon(Icons.calendar_today, size: 16, color: Colors.white),
             label: Text(
-              dateFin != null 
-                ? DateFormat('dd/MM/yyyy').format(dateFin!)
-                : "Date fin",
+              dateFin != null
+                  ? DateFormat('dd/MM/yyyy').format(dateFin!)
+                  : "Date fin",
               style: GoogleFonts.roboto(fontSize: 14, color: Colors.white),
             ),
             onPressed: () async {
@@ -556,7 +568,6 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
   }
 
   Widget _buildMobileList() {
-    
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: filteredVentes.length,
@@ -565,164 +576,166 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
         return Card(
           color: Colors.white,
           elevation: 0.01,
-    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-    child: InkWell(
-      onTap: () => _showProduitsDialog(vente),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// Date + Statut
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  DateFormat('dd/MM/yyyy').format(vente.date),
-                  style: GoogleFonts.roboto(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          child: InkWell(
+            onTap: () => _showProduitsDialog(vente),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// Date + Statut
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(vente.date),
+                        style: GoogleFonts.roboto(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _getStatusColor(vente.statut),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          vente.statut,
+                          style: GoogleFonts.roboto(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(vente.statut),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    vente.statut,
-                    style: GoogleFonts.roboto(
-                      fontSize: 12,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
-            /// Client
-            Text(
-              "Client: ${vente.clientNom}",
-              style: GoogleFonts.roboto(
-                  fontSize: 14, fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            const SizedBox(height: 4),
-
-            /// Total
-            Text(
-              "Total: ${vente.total} Fcfa",
-              style: GoogleFonts.roboto(
-                  fontSize: 14, fontWeight: FontWeight.w500),
-            ),
-
-            const SizedBox(height: 8),
-
-            /// Paiement + reste
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  child: Text(
-                    "Paiement: ${vente.typePaiement}",
+                  /// Client
+                  Text(
+                    "Client: ${vente.clientNom}",
                     style: GoogleFonts.roboto(
                         fontSize: 14, fontWeight: FontWeight.w500),
                     overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                if (vente.reste > 0)
-                  Text(
-                    "Reste: ${vente.reste} Fcfa",
-                    style: GoogleFonts.roboto(
-                      fontSize: 14,
-                      color: Colors.red,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                   if (vente.monnaie > 0)
-                  Text(
-                    "Monnaie: ${vente.monnaie} Fcfa",
-                    style: GoogleFonts.roboto(
-                      fontSize: 14,
-                      color: Colors.red,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-              ],
-            ),
 
-            const SizedBox(height: 8),
+                  const SizedBox(height: 4),
 
-            /// Boutons impression et règlement
-            Align(
-              alignment: Alignment.centerRight,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.print,
-                        size: 20, color: Colors.blue),
-                    onPressed: () => generateFacturePdf(vente),
+                  /// Total
+                  Text(
+                    "Total: ${vente.total} Fcfa",
+                    style: GoogleFonts.roboto(
+                        fontSize: 14, fontWeight: FontWeight.w500),
                   ),
-                  if (vente.reste > 0)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        minimumSize: const Size(0, 30),
-                        backgroundColor: Colors.blueAccent,
-                      ),
-                      child: Text(
-                        'Règlement',
-                        style: GoogleFonts.roboto(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
+
+                  const SizedBox(height: 8),
+
+                  /// Paiement + reste
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          "Paiement: ${vente.typePaiement}",
+                          style: GoogleFonts.roboto(
+                              fontSize: 14, fontWeight: FontWeight.w500),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      onPressed: () => _ouvrirDialogReglement(
-                        context,
-                        vente,
-                        "règlement",
-                      ),
-                    ),
-                     if (vente.monnaie > 0)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        minimumSize: const Size(0, 30),
-                        backgroundColor: Colors.blueAccent,
-                      ),
-                      child: Text(
-                        'Remboursement',
-                        style: GoogleFonts.roboto(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
+                      if (vente.reste > 0)
+                        Text(
+                          "Reste: ${vente.reste} Fcfa",
+                          style: GoogleFonts.roboto(
+                            fontSize: 14,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      onPressed: () => _ouvrirDialogReglement(
-                        context,
-                        vente,
-                        "remboursement",
-                      ),
+                      if (vente.monnaie > 0)
+                        Text(
+                          "Monnaie: ${vente.monnaie} Fcfa",
+                          style: GoogleFonts.roboto(
+                            fontSize: 14,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  /// Boutons impression et règlement
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.print,
+                              size: 20, color: Colors.blue),
+                          onPressed: () => generateFacturePdf(vente),
+                        ),
+                        if (vente.reste > 0)
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              minimumSize: const Size(0, 30),
+                              backgroundColor: Colors.blueAccent,
+                            ),
+                            child: Text(
+                              'Règlement',
+                              style: GoogleFonts.roboto(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onPressed: () => _ouvrirDialogReglement(
+                              context,
+                              vente,
+                              "règlement",
+                            ),
+                          ),
+                        if (vente.monnaie > 0)
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              minimumSize: const Size(0, 30),
+                              backgroundColor: Colors.blueAccent,
+                            ),
+                            child: Text(
+                              'Remboursement',
+                              style: GoogleFonts.roboto(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            onPressed: () => _ouvrirDialogReglement(
+                              context,
+                              vente,
+                              "remboursement",
+                            ),
+                          ),
+                      ],
                     ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    ),
-  );
+          ),
+        );
       },
     );
   }
@@ -751,26 +764,58 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                   color: Colors.white,
                 ),
                 columns: [
-                  DataColumn(label: Text("Date".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12),)),
-                  DataColumn(label: Text("Client".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12))),
-                  DataColumn(label: Text("Total".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12)), numeric: true),
-                  DataColumn(label: Text("Montant payé".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12)), numeric: true),
-                  DataColumn(label: Text("Paiement".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12))),
-                  DataColumn(label: Text("Statut".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12))),
-                  if (isDesktop) DataColumn(label: Text("Reste".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12)), numeric: true),
-                  if (isDesktop) DataColumn(label: Text("Monnaie".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12)), numeric: true),
-                  DataColumn(label: Text("Actions".toUpperCase(),style: GoogleFonts.poppins(fontSize: 12))),
+                  DataColumn(
+                      label: Text(
+                    "Date".toUpperCase(),
+                    style: GoogleFonts.poppins(fontSize: 12),
+                  )),
+                  DataColumn(
+                      label: Text("Client".toUpperCase(),
+                          style: GoogleFonts.poppins(fontSize: 12))),
+                  DataColumn(
+                      label: Text("Total".toUpperCase(),
+                          style: GoogleFonts.poppins(fontSize: 12)),
+                      numeric: true),
+                  DataColumn(
+                      label: Text("Montant payé".toUpperCase(),
+                          style: GoogleFonts.poppins(fontSize: 12)),
+                      numeric: true),
+                  DataColumn(
+                      label: Text("Paiement".toUpperCase(),
+                          style: GoogleFonts.poppins(fontSize: 12))),
+                  DataColumn(
+                      label: Text("Statut".toUpperCase(),
+                          style: GoogleFonts.poppins(fontSize: 12))),
+                  if (isDesktop)
+                    DataColumn(
+                        label: Text("Reste".toUpperCase(),
+                            style: GoogleFonts.poppins(fontSize: 12)),
+                        numeric: true),
+                  if (isDesktop)
+                    DataColumn(
+                        label: Text("Monnaie".toUpperCase(),
+                            style: GoogleFonts.poppins(fontSize: 12)),
+                        numeric: true),
+                  DataColumn(
+                      label: Text("Actions".toUpperCase(),
+                          style: GoogleFonts.poppins(fontSize: 12))),
                 ],
                 rows: filteredVentes.map((vente) {
                   return DataRow(
                     cells: [
                       DataCell(Text(
                         DateFormat('dd/MM/yyyy').format(vente.date),
-                        style: GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.w500,),
+                        style: GoogleFonts.roboto(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       )),
                       DataCell(Text(
                         vente.clientNom ?? "Occasionnel",
-                        style: GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.w500,),
+                        style: GoogleFonts.roboto(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       )),
                       DataCell(Text(
                         "${vente.total}",
@@ -779,7 +824,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       )),
-                       DataCell(Text(
+                      DataCell(Text(
                         "${vente.montantRecu}",
                         style: GoogleFonts.roboto(
                           fontSize: 14,
@@ -788,12 +833,15 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                       )),
                       DataCell(Text(
                         vente.typePaiement,
-                        style: GoogleFonts.roboto(fontSize: 14,fontWeight: FontWeight.w500,),
+                        style: GoogleFonts.roboto(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
                       )),
                       DataCell(
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: _getStatusColor(vente.statut),
                             borderRadius: BorderRadius.circular(12),
@@ -808,22 +856,24 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                           ),
                         ),
                       ),
-                      if (isDesktop) DataCell(Text(
-                        vente.reste > 0 ? "${vente.reste}" : "-",
-                        style: GoogleFonts.roboto(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: vente.reste > 0 ? Colors.red : Colors.grey,
-                        ),
-                      )),
-                        if (isDesktop) DataCell(Text(
-                        vente.monnaie > 0 ? "${vente.monnaie}" : "-",
-                        style: GoogleFonts.roboto(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: vente.monnaie > 0 ? Colors.red : Colors.grey,
-                        ),
-                      )),
+                      if (isDesktop)
+                        DataCell(Text(
+                          vente.reste > 0 ? "${vente.reste}" : "-",
+                          style: GoogleFonts.roboto(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: vente.reste > 0 ? Colors.red : Colors.grey,
+                          ),
+                        )),
+                      if (isDesktop)
+                        DataCell(Text(
+                          vente.monnaie > 0 ? "${vente.monnaie}" : "-",
+                          style: GoogleFonts.roboto(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: vente.monnaie > 0 ? Colors.red : Colors.grey,
+                          ),
+                        )),
                       DataCell(
                         Row(
                           children: [
@@ -832,13 +882,15 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                               onPressed: () => _showProduitsDialog(vente),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.print, size: 20, color: Colors.blue),
+                              icon: const Icon(Icons.print,
+                                  size: 20, color: Colors.blue),
                               onPressed: () => generateFacturePdf(vente),
                             ),
-                            if (vente.reste > 0 )
+                            if (vente.reste > 0)
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
                                   minimumSize: const Size(0, 30),
                                   backgroundColor: Colors.blueAccent,
                                 ),
@@ -850,12 +902,13 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                                   ),
                                 ),
                                 onPressed: () => _ouvrirDialogReglement(
-                                  context, vente, "règlement"),
+                                    context, vente, "règlement"),
                               ),
-                               if (vente.monnaie > 0 )
+                            if (vente.monnaie > 0)
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
                                   minimumSize: const Size(0, 30),
                                   backgroundColor: Colors.blueAccent,
                                 ),
@@ -867,7 +920,7 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
                                   ),
                                 ),
                                 onPressed: () => _ouvrirDialogReglement(
-                                  context, vente, "remboursement"),
+                                    context, vente, "remboursement"),
                               ),
                           ],
                         ),
@@ -896,180 +949,179 @@ class _HistoriqueVentesScreenState extends State<HistoriqueVentesScreen> {
     }
   }
 
-
   void _showProduitsDialog(VenteModel vente) {
-  final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
-  showDialog(
-    context: context,
-    builder: (_) => Dialog(
-      insetPadding: EdgeInsets.all(isMobile ? 8 : 24),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: isMobile ? double.infinity : 600,
-              maxHeight: MediaQuery.of(context).size.height * 0.9,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  /// Titre + bouton fermeture
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Produits vendus - ${DateFormat('dd/MM/yyyy').format(vente.date)}",
-                          style: GoogleFonts.roboto(
-                            fontSize: isMobile ? 16 : 18,
-                            fontWeight: FontWeight.bold,
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        insetPadding: EdgeInsets.all(isMobile ? 8 : 24),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isMobile ? double.infinity : 600,
+                maxHeight: MediaQuery.of(context).size.height * 0.9,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    /// Titre + bouton fermeture
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Produits vendus - ${DateFormat('dd/MM/yyyy').format(vente.date)}",
+                            style: GoogleFonts.roboto(
+                              fontSize: isMobile ? 16 : 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
 
-                  /// Liste des produits
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Table(
-                        columnWidths: const {
-                          0: FlexColumnWidth(2),
-                          1: FlexColumnWidth(1),
-                          2: FlexColumnWidth(1.5),
-                          3: FlexColumnWidth(1.5),
-                        },
-                        border: TableBorder.all(color: Colors.grey[300]!),
-                        children: [
-                          /// Header
-                          TableRow(
-                            decoration:
-                                BoxDecoration(color: Colors.blueGrey[50]),
-                            children: [
-                              _buildHeaderCell("Produit"),
-                              _buildHeaderCell("Qté", center: true),
-                              _buildHeaderCell("Prix Unitaire", center: true),
-                              _buildHeaderCell("Sous-total", center: true),
-                            ],
-                          ),
-
-                          /// Produits dynamiques
-                          ...vente.produits.map((prod) {
-                            return TableRow(
+                    /// Liste des produits
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Table(
+                          columnWidths: const {
+                            0: FlexColumnWidth(2),
+                            1: FlexColumnWidth(1),
+                            2: FlexColumnWidth(1.5),
+                            3: FlexColumnWidth(1.5),
+                          },
+                          border: TableBorder.all(color: Colors.grey[300]!),
+                          children: [
+                            /// Header
+                            TableRow(
                               decoration:
-                                  const BoxDecoration(color: Colors.white),
+                                  BoxDecoration(color: Colors.blueGrey[50]),
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    children: [
-                                      prod.image != null &&
-                                              prod.image!.isNotEmpty
-                                          ? Image.network(
-                                              prod.image!,
-                                              width: 40,
-                                              height: 40,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (_, __, ___) => const Icon(
+                                _buildHeaderCell("Produit"),
+                                _buildHeaderCell("Qté", center: true),
+                                _buildHeaderCell("Prix Unitaire", center: true),
+                                _buildHeaderCell("Sous-total", center: true),
+                              ],
+                            ),
+
+                            /// Produits dynamiques
+                            ...vente.produits.map((prod) {
+                              return TableRow(
+                                decoration:
+                                    const BoxDecoration(color: Colors.white),
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      children: [
+                                        prod.image != null &&
+                                                prod.image!.isNotEmpty
+                                            ? Image.network(
+                                                prod.image!,
+                                                width: 40,
+                                                height: 40,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, __, ___) =>
+                                                    const Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 40,
+                                                ),
+                                              )
+                                            : const Icon(
                                                 Icons.image_not_supported,
                                                 size: 40,
                                               ),
-                                            )
-                                          : const Icon(
-                                              Icons.image_not_supported,
-                                              size: 40,
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            prod.nom,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.roboto(
+                                              fontSize: 14,
                                             ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          prod.nom,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.roboto(
-                                            fontSize: 14,
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                _buildCell("${prod.quantite}"),
-                                _buildCell("${prod.prixUnitaire} Fcfa"),
-                               _buildCell("${_calculerSousTotal(prod)} Fcfa", bold: true),
-                              ],
-                            );
-                          }),
-                        ],
+                                  _buildCell("${prod.quantite}"),
+                                  _buildCell("${prod.prixUnitaire} Fcfa"),
+                                  _buildCell("${_calculerSousTotal(prod)} Fcfa",
+                                      bold: true),
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  /// Total final
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Total:",
-                        style: GoogleFonts.roboto(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                    /// Total final
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Total:",
+                          style: GoogleFonts.roboto(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        "${vente.total} Fcfa",
-                        style: GoogleFonts.roboto(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[800],
+                        Text(
+                          "${vente.total} Fcfa",
+                          style: GoogleFonts.roboto(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[800],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-/// Widgets helpers
-Widget _buildHeaderCell(String text, {bool center = false}) {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Text(
-      text,
-      style: GoogleFonts.roboto(fontWeight: FontWeight.bold),
-      textAlign: center ? TextAlign.center : TextAlign.start,
-    ),
-  );
-}
-
-Widget _buildCell(String text, {bool bold = false}) {
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Text(
-      text,
-      textAlign: TextAlign.center,
-      style: GoogleFonts.roboto(
-        fontSize: 14,
-        fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+  /// Widgets helpers
+  Widget _buildHeaderCell(String text, {bool center = false}) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        style: GoogleFonts.roboto(fontWeight: FontWeight.bold),
+        textAlign: center ? TextAlign.center : TextAlign.start,
       ),
-    ),
-  );
-}
+    );
+  }
 
+  Widget _buildCell(String text, {bool bold = false}) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.roboto(
+          fontSize: 14,
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+    );
+  }
 
   Future<void> _generatePdf() async {
     final pdf = pw.Document();
@@ -1109,405 +1161,427 @@ Widget _buildCell(String text, {bool bold = false}) {
     return null;
   }
 
+  Future<void> generateFacturePdf(VenteModel vente) async {
+    final pdf = pw.Document();
+    final dateFormatter = DateFormat('dd/MM/yyyy HH:mm');
+    final currencyFormat =
+        NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA');
 
-Future<void> generateFacturePdf(VenteModel vente) async {
-  final pdf = pw.Document();
-  final dateFormatter = DateFormat('dd/MM/yyyy HH:mm');
-  final currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: 'FCFA');
-
-  // Chargement des données du profil
-  final token = Provider.of<AuthProvider>(context, listen: false).token;
-  ProfilModel? profil;
-  try {
-    final res = await ServicesProfil().getProfils(token);
-    if (res.statusCode == 200) {
-      profil = ProfilModel.fromJson(res.data["profils"]);
+    // Chargement des données du profil
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    ProfilModel? profil;
+    try {
+      final res = await ServicesProfil().getProfils(token);
+      if (res.statusCode == 200) {
+        profil = ProfilModel.fromJson(res.data["profils"]);
+      }
+    } catch (e) {
+      debugPrint("Erreur chargement profil: $e");
     }
-  } catch (e) {
-    debugPrint("Erreur chargement profil: $e");
-  }
 
-  // Chargement du logo
-  final pw.MemoryImage? logoNetwork = await tryLoadNetworkImage(profil?.image ?? "");
-  final pw.ImageProvider logoLocal = pw.MemoryImage(
-    (await rootBundle.load('assets/logos/LOGO CGTECH.JPG')).buffer.asUint8List(),
-  );
+    // Chargement du logo
+    final pw.MemoryImage? logoNetwork =
+        await tryLoadNetworkImage(profil?.image ?? "");
+    final pw.ImageProvider logoLocal = pw.MemoryImage(
+      (await rootBundle.load('assets/logos/LOGO CGTECH.JPG'))
+          .buffer
+          .asUint8List(),
+    );
 
-  // Calcul des montants de base avec remise prise en compte
-  final double totalHT = vente.produits.fold(0, (sum, p) {
-    final prixAvecRemise = (p.remise != null && p.remise! > 0)
-        ? (p.remiseType == 'pourcent'
-            ? p.prixUnitaire * (1 - p.remise! / 100)
-            : p.prixUnitaire - p.remise!)
-        : p.prixUnitaire;
-    return sum + (prixAvecRemise * p.quantite);
-  });
-
-  // Gestion de la TVA avec remise prise en compte
-  double totalTVA;
-  bool isTvaGlobale = vente.tvaGlobale != null && vente.tvaGlobale! > 0;
-
-  if (isTvaGlobale) {
-    totalTVA = (totalHT * vente.tvaGlobale!) / 100;
-  } else {
-    totalTVA = vente.produits.fold(0, (sum, p) {
+    // Calcul des montants de base avec remise prise en compte
+    final double totalHT = vente.produits.fold(0, (sum, p) {
       final prixAvecRemise = (p.remise != null && p.remise! > 0)
           ? (p.remiseType == 'pourcent'
               ? p.prixUnitaire * (1 - p.remise! / 100)
               : p.prixUnitaire - p.remise!)
           : p.prixUnitaire;
-
-      final tvaProduit = p.tva ?? 0;
-      return sum + ((prixAvecRemise * p.quantite * tvaProduit) / 100);
+      return sum + (prixAvecRemise * p.quantite);
     });
-  }
 
-  // Calcul du TTC de base
-  double totalTTC = totalHT + totalTVA;
+    // Gestion de la TVA avec remise prise en compte
+    double totalTVA;
+    bool isTvaGlobale = vente.tvaGlobale != null && vente.tvaGlobale! > 0;
 
-  // Application des frais supplémentaires
-  totalTTC += (vente.livraison ?? 0) + (vente.emballage ?? 0);
-
-  // Application de la remise globale
-  if (vente.remiseGlobale != null && vente.remiseGlobale! > 0) {
-    if (vente.remiseGlobaleType == 'pourcent') {
-      totalTTC -= (totalTTC * vente.remiseGlobale!) / 100;
+    if (isTvaGlobale) {
+      totalTVA = (totalHT * vente.tvaGlobale!) / 100;
     } else {
-      totalTTC -= vente.remiseGlobale!;
+      totalTVA = vente.produits.fold(0, (sum, p) {
+        final prixAvecRemise = (p.remise != null && p.remise! > 0)
+            ? (p.remiseType == 'pourcent'
+                ? p.prixUnitaire * (1 - p.remise! / 100)
+                : p.prixUnitaire - p.remise!)
+            : p.prixUnitaire;
+
+        final tvaProduit = p.tva ?? 0;
+        return sum + ((prixAvecRemise * p.quantite * tvaProduit) / 100);
+      });
     }
-  }
 
-  // Calcul du reste à payer
-  final int reste = (vente.total - vente.montantRecu) > 0 ? (vente.total - vente.montantRecu) : 0;
+    // Calcul du TTC de base
+    double totalTTC = totalHT + totalTVA;
 
-  pdf.addPage(
-    pw.Page(
-      margin: const pw.EdgeInsets.all(24),
-      pageFormat: PdfPageFormat.a4,
-      build: (pw.Context context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            // En-tête
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Image(logoNetwork ?? logoLocal, width: 100, height: 100),
-                pw.Column(
+    // Application des frais supplémentaires
+    totalTTC += (vente.livraison ?? 0) + (vente.emballage ?? 0);
+
+    // Application de la remise globale
+    if (vente.remiseGlobale != null && vente.remiseGlobale! > 0) {
+      if (vente.remiseGlobaleType == 'pourcent') {
+        totalTTC -= (totalTTC * vente.remiseGlobale!) / 100;
+      } else {
+        totalTTC -= vente.remiseGlobale!;
+      }
+    }
+
+    // Calcul du reste à payer
+    final int reste = (vente.total - vente.montantRecu) > 0
+        ? (vente.total - vente.montantRecu)
+        : 0;
+
+    pdf.addPage(
+      pw.Page(
+        margin: const pw.EdgeInsets.all(24),
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // En-tête
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Image(logoNetwork ?? logoLocal, width: 100, height: 100),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text("FACTURE",
+                          style: pw.TextStyle(
+                              fontSize: 24, fontWeight: pw.FontWeight.bold)),
+                      pw.Text("N°: ${vente.facturNumber}",
+                          style: const pw.TextStyle(fontSize: 12)),
+                      pw.Text("Date: ${dateFormatter.format(vente.date)}",
+                          style: const pw.TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+
+              // Informations client
+              pw.Container(
+                padding: const pw.EdgeInsets.all(10),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(color: PdfColors.grey300),
+                  borderRadius: pw.BorderRadius.circular(5),
+                ),
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text("CLIENT",
+                        style: pw.TextStyle(
+                            fontSize: 14, fontWeight: pw.FontWeight.bold)),
+                    pw.SizedBox(height: 5),
+                    pw.Text("Nom: ${vente.clientNom ?? '-'}"),
+                    if (vente.contactClient != null)
+                      pw.Text("Contact: ${vente.contactClient}"),
+                    if (vente.clientAdresse != null)
+                      pw.Text("Adresse: ${vente.clientAdresse}"),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: 20),
+
+              // Tableau des produits
+              pw.Text("DÉTAIL DES ARTICLES",
+                  style: pw.TextStyle(
+                      fontSize: 14, fontWeight: pw.FontWeight.bold)),
+              pw.SizedBox(height: 10),
+              pw.Table(
+                border: pw.TableBorder.all(color: PdfColors.grey300),
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(3),
+                  1: const pw.FlexColumnWidth(1),
+                  2: const pw.FlexColumnWidth(1.5),
+                  3: const pw.FlexColumnWidth(1.5),
+                  4: const pw.FlexColumnWidth(1.5),
+                },
+                children: [
+                  pw.TableRow(
+                    decoration:
+                        const pw.BoxDecoration(color: PdfColors.grey200),
+                    children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text("Désignation",
+                            style:
+                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text("Qté",
+                            textAlign: pw.TextAlign.center,
+                            style:
+                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text("P.U",
+                            textAlign: pw.TextAlign.right,
+                            style:
+                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text("Montant HT",
+                            textAlign: pw.TextAlign.right,
+                            style:
+                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  ...vente.produits.map((p) {
+                    final prixAvecRemise = (p.remise != null && p.remise! > 0)
+                        ? (p.remiseType == 'pourcent'
+                            ? p.prixUnitaire * (1 - p.remise! / 100)
+                            : p.prixUnitaire - p.remise!)
+                        : p.prixUnitaire;
+
+                    final totalHTProduit = prixAvecRemise * p.quantite;
+
+                    return pw.TableRow(
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(p.nom),
+                              if ((p.remise ?? 0) > 0)
+                                pw.Text(
+                                  "Remise: ${p.remise} ${p.remiseType == 'pourcent' ? '%' : 'FCFA'}",
+                                  style: const pw.TextStyle(
+                                      fontSize: 10, color: PdfColors.grey600),
+                                ),
+                            ],
+                          ),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text(p.quantite.toString(),
+                              textAlign: pw.TextAlign.center),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text(currencyFormat.format(prixAvecRemise),
+                              textAlign: pw.TextAlign.right),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text(currencyFormat.format(totalHTProduit),
+                              textAlign: pw.TextAlign.right),
+                        ),
+                      ],
+                    );
+                  })
+                ],
+              ),
+              pw.SizedBox(height: 20),
+
+              // Section Totaux
+              pw.Container(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Text("FACTURE", 
-                        style: pw.TextStyle(
-                            fontSize: 24, 
-                            fontWeight: pw.FontWeight.bold)),
-                    pw.Text("N°: ${vente.facturNumber}",
-                        style: const pw.TextStyle(fontSize: 12)),
-                    pw.Text("Date: ${dateFormatter.format(vente.date)}",
-                        style: const pw.TextStyle(fontSize: 12)),
+                    // Total HT
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("Total HT: ",
+                            style:
+                                pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        pw.Text(currencyFormat.format(totalHT)),
+                      ],
+                    ),
+
+                    // TVA
+                    if (isTvaGlobale) ...[
+                      pw.SizedBox(height: 5),
+                      pw.Row(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        children: [
+                          pw.Text("TVA : ",
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          pw.Text(currencyFormat.format(totalTVA)),
+                        ],
+                      ),
+                    ] else if (totalTVA > 0) ...[
+                      pw.SizedBox(height: 5),
+                      pw.Row(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        children: [
+                          pw.Text("Total TVA: ",
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          pw.Text(currencyFormat.format(totalTVA)),
+                        ],
+                      ),
+                    ],
+
+                    // Total TTC avant frais et remises
+                    pw.SizedBox(height: 5),
+                    pw.Row(
+                      mainAxisSize: pw.MainAxisSize.min,
+                      children: [
+                        pw.Text("Total TTC: ",
+                            style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold, fontSize: 14)),
+                        pw.Text(currencyFormat.format(totalHT + totalTVA),
+                            style: const pw.TextStyle(fontSize: 14)),
+                      ],
+                    ),
+
+                    // Frais de livraison
+                    if ((vente.livraison ?? 0) > 0) ...[
+                      pw.SizedBox(height: 5),
+                      pw.Row(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        children: [
+                          pw.Text("Livraison: "),
+                          pw.Text(currencyFormat.format(vente.livraison)),
+                        ],
+                      ),
+                    ],
+
+                    // Frais d'emballage
+                    if ((vente.emballage ?? 0) > 0) ...[
+                      pw.SizedBox(height: 5),
+                      pw.Row(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        children: [
+                          pw.Text("Emballage: "),
+                          pw.Text(currencyFormat.format(vente.emballage)),
+                        ],
+                      ),
+                    ],
+
+                    // Remise globale
+                    if (vente.remiseGlobale != null &&
+                        vente.remiseGlobale! > 0) ...[
+                      pw.SizedBox(height: 5),
+                      pw.Row(
+                        mainAxisSize: pw.MainAxisSize.min,
+                        children: [
+                          pw.Text("- Remise Globale: "),
+                          pw.Text(
+                              "${vente.remiseGlobale} ${vente.remiseGlobaleType == 'pourcent' ? '%' : 'FCFA'}",
+                              style:
+                                  const pw.TextStyle(color: PdfColors.green)),
+                        ],
+                      ),
+                    ],
+
+                    // Total Net à Payer
+                    pw.SizedBox(height: 10),
+                    pw.Container(
+                      padding: const pw.EdgeInsets.all(10),
+                      decoration: pw.BoxDecoration(
+                        border: pw.Border.all(color: PdfColors.blue700),
+                        borderRadius: pw.BorderRadius.circular(5),
+                      ),
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.end,
+                        children: [
+                          pw.Row(
+                            mainAxisSize: pw.MainAxisSize.min,
+                            children: [
+                              pw.Text("NET À PAYER: ",
+                                  style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 16)),
+                              pw.Text(currencyFormat.format(vente.total),
+                                  style: const pw.TextStyle(
+                                      fontSize: 16, color: PdfColors.blue700)),
+                            ],
+                          ),
+
+                          // Détails de paiement
+                          pw.SizedBox(height: 8),
+                          pw.Row(
+                            mainAxisSize: pw.MainAxisSize.min,
+                            children: [
+                              pw.Text("Montant Reçu: ",
+                                  style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold)),
+                              pw.Text(currencyFormat.format(vente.montantRecu)),
+                            ],
+                          ),
+
+                          if (vente.monnaie > 0) pw.SizedBox(height: 4),
+                          if (vente.monnaie > 0)
+                            pw.Row(
+                              mainAxisSize: pw.MainAxisSize.min,
+                              children: [
+                                pw.Text("Monnaie Rendue: ",
+                                    style: pw.TextStyle(
+                                        fontWeight: pw.FontWeight.bold)),
+                                pw.Text(currencyFormat.format(vente.monnaie)),
+                              ],
+                            ),
+
+                          if (reste > 0) pw.SizedBox(height: 4),
+                          if (reste > 0)
+                            pw.Row(
+                              mainAxisSize: pw.MainAxisSize.min,
+                              children: [
+                                pw.Text("Reste à Payer: ",
+                                    style: pw.TextStyle(
+                                        fontWeight: pw.FontWeight.bold,
+                                        color: PdfColors.red)),
+                                pw.Text(currencyFormat.format(reste),
+                                    style: pw.TextStyle(
+                                        fontWeight: pw.FontWeight.bold,
+                                        color: PdfColors.red)),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ],
-            ),
-            pw.SizedBox(height: 20),
-
-            // Informations client
-            pw.Container(
-              padding: const pw.EdgeInsets.all(10),
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.grey300),
-                borderRadius: pw.BorderRadius.circular(5),
               ),
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
+
+              // Pied de page
+              pw.SizedBox(height: 20),
+              pw.Divider(),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text("CLIENT", 
-                      style: pw.TextStyle(
-                          fontSize: 14, 
-                          fontWeight: pw.FontWeight.bold)),
-                  pw.SizedBox(height: 5),
-                  pw.Text("Nom: ${vente.clientNom ?? '-'}"),
-                  if (vente.contactClient != null) 
-                    pw.Text("Contact: ${vente.contactClient}"),
-                  if (vente.clientAdresse != null)
-                    pw.Text("Adresse: ${vente.clientAdresse}"),
+                  pw.Text("Mode de Paiement: ${vente.typePaiement}"),
+                  pw.Text("Statut: ${vente.statut}"),
                 ],
               ),
-            ),
-            pw.SizedBox(height: 20),
-
-            // Tableau des produits
-            pw.Text("DÉTAIL DES ARTICLES",
+              pw.SizedBox(height: 10),
+              pw.Text(
+                vente.factureFooter ?? "Merci pour votre confiance !",
                 style: pw.TextStyle(
-                    fontSize: 14, 
-                    fontWeight: pw.FontWeight.bold)),
-            pw.SizedBox(height: 10),
-            pw.Table(
-              border: pw.TableBorder.all(color: PdfColors.grey300),
-              columnWidths: {
-                0: const pw.FlexColumnWidth(3),
-                1: const pw.FlexColumnWidth(1),
-                2: const pw.FlexColumnWidth(1.5),
-                3: const pw.FlexColumnWidth(1.5),
-                4: const pw.FlexColumnWidth(1.5),
-              },
-              children: [
-                pw.TableRow(
-                  decoration: const pw.BoxDecoration(color: PdfColors.grey200),
-                  children: [
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text("Désignation",
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text("Qté",
-                          textAlign: pw.TextAlign.center,
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text("P.U",
-                          textAlign: pw.TextAlign.right,
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.all(5),
-                      child: pw.Text("Montant HT",
-                          textAlign: pw.TextAlign.right,
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                    ),
-                  ],
+                  fontStyle: pw.FontStyle.italic,
+                  fontSize: 12,
                 ),
-                ...vente.produits.map((p) {
-                  final prixAvecRemise = (p.remise != null && p.remise! > 0)
-                      ? (p.remiseType == 'pourcent'
-                          ? p.prixUnitaire * (1 - p.remise! / 100)
-                          : p.prixUnitaire - p.remise!)
-                      : p.prixUnitaire;
-
-                  final totalHTProduit = prixAvecRemise * p.quantite;
-
-                  return pw.TableRow(
-                    children: [
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(5),
-                        child: pw.Column(
-                          crossAxisAlignment: pw.CrossAxisAlignment.start,
-                          children: [
-                            pw.Text(p.nom),
-                            if ((p.remise ?? 0) > 0)
-                              pw.Text(
-                                "Remise: ${p.remise} ${p.remiseType == 'pourcent' ? '%' : 'FCFA'}",
-                                style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
-                              ),
-                          ],
-                        ),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(5),
-                        child: pw.Text(p.quantite.toString(),
-                            textAlign: pw.TextAlign.center),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(5),
-                        child: pw.Text(currencyFormat.format(prixAvecRemise),
-                            textAlign: pw.TextAlign.right),
-                      ),
-                      pw.Padding(
-                        padding: const pw.EdgeInsets.all(5),
-                        child: pw.Text(currencyFormat.format(totalHTProduit),
-                            textAlign: pw.TextAlign.right),
-                      ),
-                    ],
-                  );
-                })
-              ],
-            ),
-            pw.SizedBox(height: 20),
-
-            // Section Totaux
-            pw.Container(
-              alignment: pw.Alignment.centerRight,
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.end,
-                children: [
-                  // Total HT
-                  pw.Row(
-                    mainAxisSize: pw.MainAxisSize.min,
-                    children: [
-                      pw.Text("Total HT: ", 
-                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                      pw.Text(currencyFormat.format(totalHT)),
-                    ],
-                  ),
-                  
-                  // TVA
-                  if (isTvaGlobale) ...[
-                    pw.SizedBox(height: 5),
-                    pw.Row(
-                      mainAxisSize: pw.MainAxisSize.min,
-                      children: [
-                        pw.Text("TVA : ", 
-                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                        pw.Text(currencyFormat.format(totalTVA)),
-                      ],
-                    ),
-                  ] else if (totalTVA > 0) ...[
-                    pw.SizedBox(height: 5),
-                    pw.Row(
-                      mainAxisSize: pw.MainAxisSize.min,
-                      children: [
-                        pw.Text("Total TVA: ", 
-                            style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                        pw.Text(currencyFormat.format(totalTVA)),
-                      ],
-                    ),
-                  ],
-                  
-                  // Total TTC avant frais et remises
-                  pw.SizedBox(height: 5),
-                  pw.Row(
-                    mainAxisSize: pw.MainAxisSize.min,
-                    children: [
-                      pw.Text("Total TTC: ", 
-                          style: pw.TextStyle(
-                              fontWeight: pw.FontWeight.bold,
-                              fontSize: 14)),
-                      pw.Text(currencyFormat.format(totalHT + totalTVA),
-                          style: const pw.TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                  
-                  // Frais de livraison
-                  if ((vente.livraison ?? 0) > 0) ...[
-                    pw.SizedBox(height: 5),
-                    pw.Row(
-                      mainAxisSize: pw.MainAxisSize.min,
-                      children: [
-                        pw.Text("Livraison: "),
-                        pw.Text(currencyFormat.format(vente.livraison)),
-                      ],
-                    ),
-                  ],
-                  
-                  // Frais d'emballage
-                  if ((vente.emballage ?? 0) > 0) ...[
-                    pw.SizedBox(height: 5),
-                    pw.Row(
-                      mainAxisSize: pw.MainAxisSize.min,
-                      children: [
-                        pw.Text("Emballage: "),
-                        pw.Text(currencyFormat.format(vente.emballage)),
-                      ],
-                    ),
-                  ],
-                  
-                  // Remise globale
-                  if (vente.remiseGlobale != null && vente.remiseGlobale! > 0) ...[
-                    pw.SizedBox(height: 5),
-                    pw.Row(
-                      mainAxisSize: pw.MainAxisSize.min,
-                      children: [
-                        pw.Text("- Remise Globale: "),
-                        pw.Text(
-                          "${vente.remiseGlobale} ${vente.remiseGlobaleType == 'pourcent' ? '%' : 'FCFA'}",
-                          style: const pw.TextStyle(color: PdfColors.green)),
-                      ],
-                    ),
-                  ],
-                  
-                  // Total Net à Payer
-                  pw.SizedBox(height: 10),
-                  pw.Container(
-                    padding: const pw.EdgeInsets.all(10),
-                    decoration: pw.BoxDecoration(
-                      border: pw.Border.all(color: PdfColors.blue700),
-                      borderRadius: pw.BorderRadius.circular(5),
-                    ),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.end,
-                      children: [
-                        pw.Row(
-                          mainAxisSize: pw.MainAxisSize.min,
-                          children: [
-                            pw.Text("NET À PAYER: ", 
-                                style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold,
-                                    fontSize: 16)),
-                            pw.Text(currencyFormat.format(vente.total),
-                                style: const pw.TextStyle(
-                                    fontSize: 16,
-                                    color: PdfColors.blue700)),
-                          ],
-                        ),
-                        
-                        // Détails de paiement
-                        pw.SizedBox(height: 8),
-                        pw.Row(
-                          mainAxisSize: pw.MainAxisSize.min,
-                          children: [
-                            pw.Text("Montant Reçu: ",
-                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                            pw.Text(currencyFormat.format(vente.montantRecu)),
-                          ],
-                        ),
-                        
-                        if (vente.monnaie > 0) pw.SizedBox(height: 4),
-                        if (vente.monnaie > 0) pw.Row(
-                          mainAxisSize: pw.MainAxisSize.min,
-                          children: [
-                            pw.Text("Monnaie Rendue: ",
-                                style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                            pw.Text(currencyFormat.format(vente.monnaie)),
-                          ],
-                        ),
-                        
-                        if (reste > 0) pw.SizedBox(height: 4),
-                        if (reste > 0) pw.Row(
-                          mainAxisSize: pw.MainAxisSize.min,
-                          children: [
-                            pw.Text("Reste à Payer: ",
-                                style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold,
-                                    color: PdfColors.red)),
-                            pw.Text(currencyFormat.format(reste),
-                                style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold,
-                                    color: PdfColors.red)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                textAlign: vente.footerAlignement == 'centre'
+                    ? pw.TextAlign.center
+                    : vente.footerAlignement == 'droite'
+                        ? pw.TextAlign.right
+                        : pw.TextAlign.left,
               ),
-            ),
-            
-            // Pied de page
-            pw.SizedBox(height: 20),
-            pw.Divider(),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-              children: [
-                pw.Text("Mode de Paiement: ${vente.typePaiement}"),
-                pw.Text("Statut: ${vente.statut}"),
-              ],
-            ),
-            pw.SizedBox(height: 10),
-            pw.Text(vente.factureFooter ?? "Merci pour votre confiance !",
-                style: pw.TextStyle(
-                    fontStyle: pw.FontStyle.italic,
-                    fontSize: 12)),
-          ],
-        );
-      },
-    ),
-  );
+            ],
+          );
+        },
+      ),
+    );
 
-  await Printing.layoutPdf(onLayout: (PdfPageFormat format) => pdf.save());
-}
-
+    await Printing.layoutPdf(onLayout: (PdfPageFormat format) => pdf.save());
+  }
 
   Future<void> _generateRapportPdfPro(
       List<VenteModel> ventes, DateTime? dateDebut, DateTime? dateFin) async {
@@ -1633,86 +1707,96 @@ Future<void> generateFacturePdf(VenteModel vente) async {
   }
 
   void _ouvrirDialogReglement(
-    BuildContext context, VenteModel vente, String type) {
-  final montantController = TextEditingController();
+      BuildContext context, VenteModel vente, String type) {
+    final montantController = TextEditingController();
 
-  showDialog(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(type == "règlement" ? "Règlement" : "Remboursement"),
-      content: TextField(
-        controller: montantController,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-            labelText: "Montant",
-            labelStyle: GoogleFonts.roboto(fontSize: 14, color: Colors.black)),
-      ),
-      actions: [
-        TextButton(
-          child: const Text("Annuler"),
-          onPressed: () => Navigator.pop(dialogContext),
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(type == "règlement" ? "Règlement" : "Remboursement"),
+        content: TextField(
+          controller: montantController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+              labelText: "Montant",
+              labelStyle:
+                  GoogleFonts.roboto(fontSize: 14, color: Colors.black)),
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange.shade700),
-          child: Text(
-            "Valider",
-            style: GoogleFonts.roboto(fontSize: 14, color: Colors.white),
+        actions: [
+          TextButton(
+            child: const Text("Annuler"),
+            onPressed: () => Navigator.pop(dialogContext),
           ),
-          onPressed: () async {
-            final montant = int.tryParse(montantController.text) ?? 0;
-            if (montant <= 0) {
-              ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  const SnackBar(
-                      content: Text("Montant invalide ou supérieur au dû")));
-              return;
-            }
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange.shade700),
+            child: Text(
+              "Valider",
+              style: GoogleFonts.roboto(fontSize: 14, color: Colors.white),
+            ),
+            onPressed: () async {
+              final montant = int.tryParse(montantController.text) ?? 0;
+              if (montant <= 0) {
+                ScaffoldMessenger.of(dialogContext).showSnackBar(const SnackBar(
+                    content: Text("Montant invalide ou supérieur au dû")));
+                return;
+              }
 
-            final token = Provider.of<AuthProvider>(context, listen: false).token;
-            final userId = Provider.of<AuthProvider>(context, listen: false).userId;
-            final userName = Provider.of<AuthProvider>(context, listen: false).userName;
-            final adminId = Provider.of<AuthProvider>(context, listen: false).adminId;
+              final token =
+                  Provider.of<AuthProvider>(context, listen: false).token;
+              final userId =
+                  Provider.of<AuthProvider>(context, listen: false).userId;
+              final userName =
+                  Provider.of<AuthProvider>(context, listen: false).userName;
+              final adminId =
+                  Provider.of<AuthProvider>(context, listen: false).adminId;
 
-            final reglement = {
-              "venteId": vente.id,
-              "userId": userId,
-              "adminId": adminId,
-              "clientId": vente.clientId,
-              "nom": vente.clientNom,
-              "montant": montant,
-              "type": type,
-              "mode": vente.typePaiement,
-              "operateur": userName,
-              "date": DateTime.now().toIso8601String(),
-            };
+              final reglement = {
+                "venteId": vente.id,
+                "userId": userId,
+                "adminId": adminId,
+                "clientId": vente.clientId,
+                "nom": vente.clientNom,
+                "montant": montant,
+                "type": type,
+                "mode": vente.typePaiement,
+                "operateur": userName,
+                "date": DateTime.now().toIso8601String(),
+              };
 
-            final res = await ServicesReglements().postReglements(reglement, token);
+              final res =
+                  await ServicesReglements().postReglements(reglement, token);
 
-            if (res.statusCode == 201) {
-              Navigator.pop(dialogContext);
-              fetchVentes();
-            } else {
-              ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  const SnackBar(content: Text("Erreur lors du règlement")));
-            }
-          },
-        ),
-      ],
-    ),
-  );
-}
+              if (res.statusCode == 201) {
+                Navigator.pop(dialogContext);
+                fetchVentes();
+              } else {
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(content: Text("Erreur lors du règlement")));
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   int _calculerSousTotal(ProductItemModel prod) {
-  int prixUnitaire = prod.prixUnitaire;
-  if (prod.remiseType == 'fcfa') {
-    prixUnitaire -= prod.remise!;
-  } else if (prod.remiseType == 'pourcent') {
-    prixUnitaire -= ((prixUnitaire * prod.remise!) ~/ 100);
-  }
-  if (prixUnitaire < 0) prixUnitaire = 0;
+    int prixUnitaire = prod.prixUnitaire;
+    if (prod.remiseType == 'fcfa') {
+      prixUnitaire -= prod.remise!;
+    } else if (prod.remiseType == 'pourcent') {
+      prixUnitaire -= ((prixUnitaire * prod.remise!) ~/ 100);
+    }
+    if (prixUnitaire < 0) prixUnitaire = 0;
 
-  int sousTotalBrut = prixUnitaire * prod.quantite;
-  double montantTVA = (prod.tva! > 0) ? ((sousTotalBrut * prod.tva!) / 100) : 0;
-  return (sousTotalBrut + montantTVA + prod.fraisLivraison! + prod.fraisEmballage!).round();
-}
+    int sousTotalBrut = prixUnitaire * prod.quantite;
+    double montantTVA =
+        (prod.tva! > 0) ? ((sousTotalBrut * prod.tva!) / 100) : 0;
+    return (sousTotalBrut +
+            montantTVA +
+            prod.fraisLivraison! +
+            prod.fraisEmballage!)
+        .round();
+  }
 }
