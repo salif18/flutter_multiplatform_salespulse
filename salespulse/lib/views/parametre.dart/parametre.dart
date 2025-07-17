@@ -110,6 +110,7 @@ class ParametresPage extends StatelessWidget {
             MaterialPageRoute(
                 builder: (context) => const FactureSettingsPage())),
       ),
+      
       _buildSettingCard(
         context,
         icon: Iconsax.profile_delete,
@@ -201,7 +202,7 @@ class ParametresPage extends StatelessWidget {
               // Appel API
               final success = await ServicesAuth().deleteAdminCounts(token);
 
-              if (success) {
+              if (success.statusCode == 200) {
                 // Déconnexion + redirection vers login
                 Provider.of<AuthProvider>(context, listen: false)
                     .logoutButton();

@@ -11,6 +11,7 @@ import 'package:salespulse/views/abonnement/abonement_historiques.dart';
 import 'package:salespulse/views/auth/login_view.dart';
 import 'package:salespulse/views/categories/categories_view.dart';
 import 'package:salespulse/views/cliens/client_pro.dart';
+import 'package:salespulse/views/commanses/bons.dart';
 import 'package:salespulse/views/dashbord/dash_prod.dart';
 import 'package:salespulse/views/depenses/depense_view.dart';
 import 'package:salespulse/views/fournisseurs/fournisseurs_view.dart';
@@ -57,8 +58,8 @@ class _RoutesState extends State<Routes> {
     }
     
     final allowedIndexes = [
-       2, 3, 4, 5, 6,7, 9,10, 11, 12, 13,14,
-      if (role == "admin") ...[0, 1, 8, 15]
+       2, 3, 4, 5, 6,7, 9,10, 11, 12, 13,15,
+      if (role == "admin") ...[0, 1, 8, 14,16]
     ];
     
     final firstAllowedIndex = allowedIndexes.first;
@@ -259,6 +260,9 @@ class _RoutesState extends State<Routes> {
                     iconBgColor: Colors.teal),
                 _buildDrawerItem(Icons.contact_phone_rounded, "Fournisseurs", 13,
                     iconBgColor: Colors.grey),
+                if(role == "admin")
+              _buildDrawerItem(Icons.card_travel_rounded, "Commandes", 14,
+                  iconBgColor: Colors.grey),
               ],
 
               _buildExpandableSectionHeader(
@@ -268,7 +272,7 @@ class _RoutesState extends State<Routes> {
                 onTap: () => setState(() => _financesMenuExpanded = !_financesMenuExpanded),
               ),
               if (_financesMenuExpanded) ...[
-                _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
+                _buildDrawerItem(Icons.balance_sharp, "Dépenses", 15,
                     iconBgColor: Colors.redAccent),
               ],
              if (role == "admin")
@@ -281,7 +285,7 @@ class _RoutesState extends State<Routes> {
               if (_adminMenuExpanded) ...[
                 if (role == "admin")
                   _buildDrawerItem(
-                      FontAwesomeIcons.userGroup, "Suivis employés", 15,
+                      FontAwesomeIcons.userGroup, "Suivis employés", 16,
                       iconBgColor: Colors.blueAccent),
               ],
 
@@ -459,6 +463,9 @@ class _RoutesState extends State<Routes> {
                   iconBgColor: Colors.teal),
               _buildDrawerItem(Icons.contact_phone_rounded, "Fournisseurs", 13,
                   iconBgColor: Colors.grey),
+                  if(role == "admin")
+              _buildDrawerItem(Icons.card_travel_rounded, "Commandes", 14,
+                  iconBgColor: Colors.grey),
             ],
 
             _buildExpandableSectionHeader(
@@ -468,7 +475,7 @@ class _RoutesState extends State<Routes> {
               onTap: () => setState(() => _financesMenuExpanded = !_financesMenuExpanded),
             ),
             if (_financesMenuExpanded) ...[
-              _buildDrawerItem(Icons.balance_sharp, "Dépenses", 14,
+              _buildDrawerItem(Icons.balance_sharp, "Dépenses", 15,
                   iconBgColor: Colors.redAccent),
             ],
              if (role == "admin")
@@ -481,7 +488,7 @@ class _RoutesState extends State<Routes> {
             if (_adminMenuExpanded) ...[
               if (role == "admin")
                 _buildDrawerItem(
-                    FontAwesomeIcons.userGroup, "Suivis employés", 15,
+                    FontAwesomeIcons.userGroup, "Suivis employés", 16,
                     iconBgColor: Colors.blueAccent),
             
             ],
@@ -576,14 +583,15 @@ class _RoutesState extends State<Routes> {
       const CategoriesView(),
       const ClientsView(),
       const FournisseurView(),
+      const CommandeListPage(),
       const DepenseScreen(),
       const UserManagementScreen(),
       // const AbonnementHistoriquePage()
     ];
 
     final allowedIndexes = [
-       2, 3,4, 5, 6, 7, 9,10, 11, 12, 13,14,
-      if (role == "admin") ...[0, 1,8, 15]
+       2, 3,4, 5, 6, 7, 9,10, 11, 12, 13,15,
+      if (role == "admin") ...[0, 1,8,14, 16]
     ];
 
     if (!allowedIndexes.contains(_currentIndex)) {

@@ -382,7 +382,7 @@ class _FournisseurViewState extends State<FournisseurView> {
 
                                       // Nom
                                       DataCell(Text(
-                                        fournisseur.prenom,
+                                        "${fournisseur.prenom} ${fournisseur.nom}",
                                         style: GoogleFonts.roboto(
                                           fontSize: 14,
                                         ),

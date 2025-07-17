@@ -112,7 +112,7 @@ class ServicesAuth {
    //obtenir categorie pour formulaire
   deleteAdminCounts(token) async {
     var uri = "$domaineName/auth/admin-compte";
-    return await dio.get(uri,
+    return await dio.delete(uri,
         options: Options(
           headers: {
             "Content-Type": "application/json",
